@@ -31,10 +31,13 @@ void draw() {
 
 Map generation idea:
 - Generate [2] circles of points - push them out random amounts (outside circle pushed farther)
-- Connect all nodes together (every single one), edges get random length
+- Find farthest left node, add start node to left
+- Find farthest right node, add end node to right
 - For each node:
-  - Choose random number of edges to keep (2-4, bias towards 2-3)
-  - Delete longest edges first (in pixels)
+  - Choose random number of edges to connect (2-4, bias towards 2-3)
+  - Connect to closest neighbouring nodes
+- Select random number of edges (1-5) and delete them randomly
+  - Ensure a path is still possible after checking each deletion
 
 */
 void generateMap(float padding, int numNodes)

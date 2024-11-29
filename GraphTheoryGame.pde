@@ -15,6 +15,11 @@ Slider minMovesSlider;
 Slider maxMovesSlider;
 
 Button generateButton;
+
+Button easyButton;
+Button mediumButton;
+Button hardButton;
+
 Button shiftUp;
 Button shiftDown;
 Button shiftLeft;
@@ -37,7 +42,13 @@ void setup() {
   minMovesSlider = new Slider(new Rect(20, 150, 120, 10), "Minimum Moves", 1, 10, true, 4f);
   maxMovesSlider = new Slider(new Rect(20, 180, 120, 10), "Maximum Moves", 2, 20, true, 6f);
 
-  generateButton = new Button(20, 160, 120, 30, "Generate");
+  generateButton = new Button(20, 200, 120, 30, "Generate");
+  new Label(20, 250, 120, 20, "^^ Settings ^^", 16);
+  
+  new Label(20, 400, 120, 20, "vv Quick Play vv", 16);
+  easyButton = new Button(30, 450, 100, 24, "Easy");
+  mediumButton = new Button(30, 480, 100, 24, "Medium");
+  hardButton = new Button(30, 510, 100, 24, "Hard");
 
   //shiftUp = new Button(
 }
@@ -50,6 +61,7 @@ void draw() {
 
   Button.displayAll();
   Slider.displayAll();
+  Label.displayAll();
 
   validateSliders();
 }

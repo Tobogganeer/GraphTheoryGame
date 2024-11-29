@@ -23,6 +23,23 @@ static class Delauney
       if (n.position.x > maxX) maxX = n.position.x;
       if (n.position.y > maxY) maxY = n.position.y;
     }
+    
+    // Calculate width and height
+    float w = maxX - minX;
+    float h = maxY - minY;
+    // Add nodes to the left of bounds, plus one to the right
+    // See bit-101 link above
+    stA = new Node(minX - w * 0.1, minY - h);
+    stB = new Node(minX - w * 0.1, minY + h * 2);
+    stC = new Node(minX + w * 1.7, minY + h * 0.5f);
+    
+    // Add super triangle
+    triangles.add(new Triangle(stA, stB, stC));
+    
+    for (Node node : Node.all)
+    {
+      ArrayList<Triangle> badTriangles = new ArrayList<Triangle>();
+    }
 
     return triangles;
   }
@@ -40,6 +57,44 @@ static class Triangle
     //new Edge(0, a, b);
     //new Edge(0, b, c);
     //new Edge(0, c, a);
+  }
+  
+  boolean isNodeInsideCircumcircle(Node node)
+  {
+    // https://www.kristakingmath.com/blog/circumscribed-and-inscribed-circles-of-triangles
+    // Calculate directions of bisectors for 2 edges
+    PVector dirA = b.position.copy().sub(a.position).normalize(); // Dir from a to b
+    PVector dirB = b.position.copy().sub(c.position).normalize(); // Dir from c to b
+    
+    PVector bisectorDirA = new PVector(dirA.y, -dirA.x);
+    PVector bisectorDirB = new PVector(dirB.y, -dirB.x);
+    
+    PVector midpointA = PVector.lerp(a.position, b.position, 0.5f);
+    PVector midpointB = PVector.lerp(c.position, b.position, 0.5f);
+    
+    // Have points and direction, re-arrange to linear form y = mx + b
+    // b = y - mx (we have x, y, and can get slope from bisector dir)
+    
+    float slopeA = bisectorDirA.y / bisectorDirA.x;
+    float slopeB = bisectorDirB.y / bisectorDirB.x;
+    
+    // y = midpoint.y, x = midpoint.x, m = slope
+    float interceptA = midpointA.y - (slopeA * midpointA.x);
+    float interceptB = midpointB.y - (slopeB * midpointB.x);
+    
+    // y = mx + b for both lines
+    // When intersecting, both y's are the same
+    // Therefore m1x1 + b1 = m2x2 + b2
+    // m1x1 - m2x2 = b2 - b1
+    // x = (b2 - b1) / (m1 - m2)
+    float xIntercept = interceptB - interceptA / slopeA - slopeB;
+    float yIntercept = slopeA * midpointA.x + interceptB; // mx + b
+    
+    // Huzzah at long last
+    PVector circumcenter = new PVector(xIntercept, yIntercept);
+    float circumcircleRadius = PVector.dist(circumcenter, a.position); // Dist to any original vertex
+    
+    return node.position.dist(circumcenter) < circumcircleRadius;
   }
 
   /*

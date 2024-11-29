@@ -61,22 +61,88 @@ void generateMap(int numNodes)
   int outerNodes = numNodes / 2;
   int innerNodes = numNodes - outerNodes;
 
+  // Generate rings
   for (int i = 0; i < outerNodes; i++)
     generateRingNode(outerPush, horizontalPushMult);
   for (int i = 0; i < innerNodes; i++)
     generateRingNode(innerPush, horizontalPushMult);
+
+  // Start + end
+  generateStartAndEnd();
+
+  // Make sure they are spread out
+  spaceAllNodes(minSpacing);
 }
 
 
 
-Node generateRingNode(float push, float horizontalMult)
+void generateRingNode(float push, float horizontalMult)
 {
   float x = random(-push, push) * horizontalMult;
   float y = random(-push, push);
   x += width / 2f;
   y += height / 2f;
-  return new Node(x, y);
+  new Node(x, y);
 }
+
+void generateStartAndEnd()
+{
+  // Find edges of node bounds
+  Node leftNode = Node.all.get(0), rightNode = Node.all.get(0);
+  float minX = width, maxX = 0;
+  for (Node n : Node.all)
+  {
+    if (n.position.x < minX)
+    {
+      leftNode = n;
+      minX = n.position.x;
+    } else if (n.position.x > maxX)
+    {
+      rightNode = n;
+      maxX = n.position.x;
+    }
+  }
+
+  // Random Y offsets for start and end
+  float startY = random(-30f, 30f);
+  float endY = random(-30f, 30f);
+
+  // Create nodes slightly past edge nodes
+  startNode = new Node(leftNode.position.copy().add(new PVector(-60, startY)));
+  endNode = new Node(rightNode.position.copy().add(new PVector(60, endY)));
+}
+
+void spaceAllNodes(float minSpacing)
+{
+  // Should be more than enough
+  final int iterations = 20;
+  for (int i = 0; i < iterations; i++)
+  {
+    for (Node a : Node.all)
+    {
+      for (Node b : Node.all)
+      {
+        // Don't check against ourselves
+        if (a == b)
+          continue;
+        // Far away enough, move along
+        if (a.position.dist(b.position) > minSpacing)
+          continue;
+        
+        PVector offset = a.position.copy().sub(b.position);
+        float currentDist = offset.mag();
+        offset.normalize();
+        float neededSeperation = currentDist - minSpacing;
+        offset.mult(neededSeperation / 2f); // Will be applied to both, halve needed "push"
+        // Push them apart
+        a.position.add(offset);
+        b.position.sub(offset);
+        println("pushed " + neededSeperation);
+      }
+    }
+  }
+}
+
 
 void drawNodes()
 {

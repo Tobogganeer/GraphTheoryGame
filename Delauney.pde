@@ -159,8 +159,8 @@ static class Triangle
 
     PVector midpointA = PVector.lerp(a.position, b.position, 0.5f);
     PVector midpointB = PVector.lerp(c.position, b.position, 0.5f);
-    
-    
+
+
     // Have points and direction, re-arrange to linear form y = mx + b
     // b = y - mx (we have x, y, and can get slope from bisector dir)
 
@@ -168,7 +168,7 @@ static class Triangle
     float slopeB = bisectorDirB.y / bisectorDirB.x;
     //float slopeA = -(1f / ((b.position.y - a.position.y) / (b.position.x - a.position.x)));
     //float slopeB = -(1f / ((b.position.y - c.position.y) / (b.position.x - c.position.x)));
-    
+
     // y = mx + b
     // midpoint.y = slope * midpoint.x + b
     // b = midpoint.y - slope * midpoint.x
@@ -182,13 +182,13 @@ static class Triangle
     // Therefore m1x1 + b1 = m2x2 + b2
     // m1x1 - m2x2 = b2 - b1
     // x = (b2 - b1) / (m1 - m2)
-    float xIntercept = interceptB - interceptA / slopeA - slopeB;
-    float yIntercept = slopeA * midpointA.x + interceptB; // mx + b
+    float xIntercept = (interceptB - interceptA) / (slopeA - slopeB);
+    float yIntercept = slopeA * xIntercept + interceptA; // mx + b
 
     // Huzzah at long last
     PVector circumcenter = new PVector(xIntercept, yIntercept);
     float circumcircleRadius = PVector.dist(circumcenter, a.position); // Dist to any original vertex
-    
+
     return new Circle(circumcenter, circumcircleRadius);
   }
 

@@ -25,13 +25,15 @@ static class Slider
 
   final float handleRadius = 16;
 
-  Slider(Rect rect, String label, float minValue, float maxValue, boolean wholeNumbers)
+  Slider(Rect rect, String label, float minValue, float maxValue, boolean wholeNumbers, float defaultValue)
   {
     this.rect = rect;
     this.label = label;
     this.minValue = minValue;
     this.maxValue = maxValue;
     this.wholeNumbers = wholeNumbers;
+    
+    setValue(defaultValue);
 
     handleRect = new Rect(0, 0, handleRadius, handleRadius);
 
@@ -76,7 +78,7 @@ static class Slider
     app.textAlign(CENTER, BASELINE);
     app.textSize(12);
     app.text(label, rect.centerX(), rect.y - 5);
-    
+
     app.textAlign(LEFT, CENTER);
     String str = wholeNumbers ? Integer.toString(int(currentValue)) : String.format("%.02f", currentValue);
     app.text(str, rect.x + rect.w + 10, rect.centerY());
@@ -96,6 +98,14 @@ static class Slider
     // fac = (x - rectX) / rectW
     return (xPosition - rect.x) / rect.w;
   }
+
+  void setValue(float value)
+  {
+    value = Maths.clamp(value, minValue, maxValue);
+    float fac = (value - minValue) / maxValue;
+    handleFac = fac;
+  }
+
 
   boolean isHovered()
   {

@@ -7,10 +7,21 @@ final float innerPush = 80f;
 final float horizontalPushMult = 1.3f;
 final float minSpacing = 70f;
 
-Slider testSlider;
+Slider numNodesSlider;
+Slider removeFactorSlider;
+Slider edgeMinCostSlider;
+Slider edgeMaxCostSlider;
+Slider minMovesSlider;
+Slider maxMovesSlider;
+
+Button generateButton;
+Button shiftUp;
+Button shiftDown;
+Button shiftLeft;
+Button shiftRight;
 
 void setup() {
-  size(800, 600);
+  size(1000, 600);
   noStroke();
   fill(0);
 
@@ -18,8 +29,17 @@ void setup() {
 
   int minCost = 1, maxCost = 9;
   generateMap(20, 1f, minCost, maxCost);
-  
-  testSlider = new Slider(new Rect(100, 100, 100, 10), "Test", 1, 10, true);
+
+  numNodesSlider = new Slider(new Rect(20, 30, 120, 10), "Number of Nodes", 6, 20, true, 6);
+  removeFactorSlider = new Slider(new Rect(20, 60, 120, 10), "Edge Removal Multiplier", 0f, 3f, false, 1.5f);
+  edgeMinCostSlider = new Slider(new Rect(20, 90, 120, 10), "Edge Min Cost", 0, 10, true, 1f);
+  edgeMaxCostSlider = new Slider(new Rect(20, 120, 120, 10), "Edge Max Cost", 1, 20, true, 5f);
+  minMovesSlider = new Slider(new Rect(20, 150, 120, 10), "Minimum Moves", 1, 10, true, 4f);
+  maxMovesSlider = new Slider(new Rect(20, 180, 120, 10), "Maximum Moves", 2, 20, true, 6f);
+
+  generateButton = new Button(20, 160, 120, 30, "Generate");
+
+  //shiftUp = new Button(
 }
 
 void draw() {
@@ -27,9 +47,11 @@ void draw() {
 
   drawNodes();
   drawEdges();
-  
+
   Button.displayAll();
   Slider.displayAll();
+
+  validateSliders();
 }
 
 /*
@@ -177,6 +199,16 @@ void destroyEdges(int num)
     else
       edge.forceAdd();
   }
+}
+
+
+void validateSliders()
+{
+  // Make sure costs and moves are always valid
+  if (edgeMinCostSlider.currentValue > edgeMaxCostSlider.currentValue)
+    edgeMaxCostSlider.setValue(edgeMinCostSlider.currentValue);
+  if (minMovesSlider.currentValue > maxMovesSlider.currentValue)
+    maxMovesSlider.setValue(minMovesSlider.currentValue);
 }
 
 

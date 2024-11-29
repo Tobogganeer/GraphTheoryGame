@@ -17,4 +17,26 @@ static class Node
     //id = nextId++;
     //all.put(id, this);
   }
+
+  boolean connectedWith(Node other)
+  {
+    for (Edge e : Edge.all)
+    {
+      if (e.connectsNodes(this, other))
+        return true;
+    }
+
+    return false;
+  }
+
+  Edge getEdge(Node other)
+  {
+    for (Edge e : Edge.all)
+    {
+      if (e.connectsNodes(this, other))
+        return e;
+    }
+
+    return null;
+  }
 }

@@ -32,18 +32,6 @@ void draw() {
 
   drawNodes();
   drawEdges();
-
-  for (Triangle tri : debugDraw)
-  {
-    stroke(0);
-    line(tri.a.position.x, tri.a.position.y, tri.b.position.x, tri.b.position.y);
-    line(tri.b.position.x, tri.b.position.y, tri.c.position.x, tri.c.position.y);
-    line(tri.c.position.x, tri.c.position.y, tri.a.position.x, tri.a.position.y);
-  }
-
-  stroke(0, 255, 0);
-  for (Node n : Node.all)
-    line(width / 2, height / 2, n.position.x, n.position.y);
 }
 
 /*
@@ -88,10 +76,7 @@ void generateMap(int numNodes)
   spaceAllNodes(minSpacing);
 
   ArrayList<Triangle> triangles = Delauney.triangulateCurrentNodes();
-  debugDraw = triangles;
 }
-
-ArrayList<Triangle> debugDraw;
 
 
 

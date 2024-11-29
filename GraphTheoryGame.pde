@@ -39,62 +39,11 @@ void draw() {
     line(tri.a.position.x, tri.a.position.y, tri.b.position.x, tri.b.position.y);
     line(tri.b.position.x, tri.b.position.y, tri.c.position.x, tri.c.position.y);
     line(tri.c.position.x, tri.c.position.y, tri.a.position.x, tri.a.position.y);
-    Circle circ = tri.getCircumcircle();
-    ellipse(circ.center.x, circ.center.y, circ.radius / 2f, circ.radius / 2f);
   }
 
-  Triangle tri = new Triangle(Node.all.get(3), Node.all.get(5), Node.all.get(7));
-  line(tri.a.position.x, tri.a.position.y, tri.b.position.x, tri.b.position.y);
-  line(tri.b.position.x, tri.b.position.y, tri.c.position.x, tri.c.position.y);
-  line(tri.c.position.x, tri.c.position.y, tri.a.position.x, tri.a.position.y);
-  Circle circ = tri.getCircumcircle();
-  ellipse(circ.center.x, circ.center.y, circ.radius / 2f, circ.radius / 2f);
-  println(circ.center);
-
-  PVector dirA = tri.b.position.copy().sub(tri.a.position).normalize(); // Dir from a to b
-  PVector dirB = tri.b.position.copy().sub(tri.c.position).normalize(); // Dir from c to b
-
-  stroke(255, 0, 0);
-  drawLine(tri.a.position, tri.a.position.copy().add(dirA.copy().mult(100)));
-
-  PVector bisectorDirA = new PVector(dirA.y, -dirA.x);
-  PVector bisectorDirB = new PVector(dirB.y, -dirB.x);
-
-  PVector midpointA = PVector.lerp(tri.a.position, tri.b.position, 0.5f);
-  PVector midpointB = PVector.lerp(tri.c.position, tri.b.position, 0.5f);
-  
   stroke(0, 255, 0);
-  drawLine(midpointA, midpointA.copy().add(bisectorDirA.copy().mult(100)));
-  drawLine(midpointB, midpointB.copy().add(bisectorDirB.copy().mult(100)));
-
-
-  // Have points and direction, re-arrange to linear form y = mx + b
-  // b = y - mx (we have x, y, and can get slope from bisector dir)
-
-  float slopeA = bisectorDirA.y / bisectorDirA.x;
-  float slopeB = bisectorDirB.y / bisectorDirB.x;
-  
-  println("A: " + slopeA + " - B: " + slopeB);
-  //float slopeA = -(1f / ((b.position.y - a.position.y) / (b.position.x - a.position.x)));
-  //float slopeB = -(1f / ((b.position.y - c.position.y) / (b.position.x - c.position.x)));
-
-  // y = mx + b
-  // midpoint.y = slope * midpoint.x + b
-  // b = midpoint.y - slope * midpoint.x
-
-  // y = midpoint.y, x = midpoint.x, m = slope
-  float interceptA = midpointA.y - (slopeA * midpointA.x);
-  float interceptB = midpointB.y - (slopeB * midpointB.x);
-  
-  float xIntercept = (interceptB - interceptA) / (slopeA - slopeB);
-  float yIntercept = slopeA * xIntercept + interceptA; // mx + b
-  
-  ellipse(xIntercept, yIntercept, 20, 20);
-}
-
-void drawLine(PVector a, PVector b)
-{
-  line(a.x, a.y, b.x, b.y);
+  for (Node n : Node.all)
+    line(width / 2, height / 2, n.position.x, n.position.y);
 }
 
 /*
@@ -217,7 +166,7 @@ ArrayList<Node> getShuffledNodeList()
 {
   int index;
   ArrayList<Node> nodes = new ArrayList<Node>();
-  for (int i = Node.all.size() - 1; i > 0; i--)
+  for (int i = Node.all.size() - 1; i >= 0; i--)
   {
     index = int(random(i + 1));
     nodes.add(Node.all.get(index));

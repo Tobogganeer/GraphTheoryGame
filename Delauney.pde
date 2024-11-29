@@ -79,7 +79,7 @@ static class Delauney
     }
 
     // Remove any tris connecting to super triangle nodes
-    for (int i = triangles.size() - 1; i > 0; i--)
+    for (int i = triangles.size() - 1; i >= 0; i--)
     {
       Triangle tri = triangles.get(i);
       if (tri.hasNode(stA) || tri.hasNode(stB) || tri.hasNode(stC))

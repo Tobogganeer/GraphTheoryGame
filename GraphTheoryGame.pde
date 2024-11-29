@@ -32,6 +32,24 @@ void draw() {
 
   drawNodes();
   drawEdges();
+
+  for (Triangle tri : debugDraw)
+  {
+    stroke(0);
+    line(tri.a.position.x, tri.a.position.y, tri.b.position.x, tri.b.position.y);
+    line(tri.b.position.x, tri.b.position.y, tri.c.position.x, tri.c.position.y);
+    line(tri.c.position.x, tri.c.position.y, tri.a.position.x, tri.a.position.y);
+    Circle circ = tri.getCircumcircle();
+    ellipse(circ.center.x, circ.center.y, circ.radius / 2f, circ.radius / 2f);
+  }
+
+  Triangle tri = new Triangle(Node.all.get(3), Node.all.get(5), Node.all.get(7));
+  line(tri.a.position.x, tri.a.position.y, tri.b.position.x, tri.b.position.y);
+  line(tri.b.position.x, tri.b.position.y, tri.c.position.x, tri.c.position.y);
+  line(tri.c.position.x, tri.c.position.y, tri.a.position.x, tri.a.position.y);
+  Circle circ = tri.getCircumcircle();
+  ellipse(circ.center.x, circ.center.y, circ.radius / 2f, circ.radius / 2f);
+  println(circ.center);
 }
 
 /*
@@ -74,7 +92,12 @@ void generateMap(int numNodes)
 
   // Make sure they are spread out
   spaceAllNodes(minSpacing);
+
+  ArrayList<Triangle> triangles = Delauney.triangulateCurrentNodes();
+  debugDraw = triangles;
 }
+
+ArrayList<Triangle> debugDraw;
 
 
 

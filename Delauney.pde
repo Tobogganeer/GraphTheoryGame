@@ -3,10 +3,9 @@ import java.util.ArrayList;
 
 static class Delauney
 {
-  public ArrayList<Triangle> triangulateCurrentNodes()
+  public static ArrayList<Triangle> triangulateCurrentNodes()
   {
     ArrayList<Triangle> triangles = new ArrayList<Triangle>();
-    ArrayList<TriangleEdge> edges = new ArrayList<TriangleEdge>();
     Node stA, stB, stC; // Store super triangle nodes so we can delete them later
 
     // https://bit-101.com/blog/posts/2024-02-11/supertriangle/
@@ -32,6 +31,11 @@ static class Delauney
     stA = new Node(minX - w * 0.1, minY - h);
     stB = new Node(minX - w * 0.1, minY + h * 2);
     stC = new Node(minX + w * 1.7, minY + h * 0.5f);
+
+    // Remove super triangle nodes
+    Node.all.remove(stA);
+    Node.all.remove(stB);
+    Node.all.remove(stC);
 
     // Add super triangle
     triangles.add(new Triangle(stA, stB, stC));
@@ -81,11 +85,6 @@ static class Delauney
       if (tri.hasNode(stA) || tri.hasNode(stB) || tri.hasNode(stC))
         triangles.remove(tri);
     }
-    
-    // Remove super triangle nodes
-    Node.all.remove(stA);
-    Node.all.remove(stB);
-    Node.all.remove(stC);
 
     return triangles;
   }
@@ -148,7 +147,7 @@ static class Triangle
     return node == a || node == b || node == c;
   }
 
-  boolean isNodeInsideCircumcircle(Node node)
+  Circle getCircumcircle()
   {
     // https://www.kristakingmath.com/blog/circumscribed-and-inscribed-circles-of-triangles
     // Calculate directions of bisectors for 2 edges
@@ -182,8 +181,15 @@ static class Triangle
     // Huzzah at long last
     PVector circumcenter = new PVector(xIntercept, yIntercept);
     float circumcircleRadius = PVector.dist(circumcenter, a.position); // Dist to any original vertex
+    
+    return new Circle(circumcenter, circumcircleRadius);
+  }
 
-    return node.position.dist(circumcenter) < circumcircleRadius;
+  boolean isNodeInsideCircumcircle(Node node)
+  {
+    Circle circumcircle = getCircumcircle();
+
+    return node.position.dist(circumcircle.center) < circumcircle.radius;
   }
 
   /*
@@ -196,6 +202,18 @@ static class Triangle
    return edges;
    }
    */
+}
+
+static class Circle
+{
+  PVector center;
+  float radius;
+
+  public Circle(PVector center, float radius)
+  {
+    this.center = center.copy();
+    this.radius = radius;
+  }
 }
 
 // Store edges without messing with global Edge list

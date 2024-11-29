@@ -27,6 +27,21 @@ void draw() {
   drawEdges();
 }
 
+/*
+
+Map generation idea:
+- Generate [2] circles of points - push them out random amounts (outside circle pushed farther)
+- Connect all nodes together (every single one), edges get random length
+- For each node:
+  - Choose random number of edges to keep (2-4, bias towards 2-3)
+  - Delete longest edges first (in pixels)
+
+*/
+void generateMap(float padding, int numNodes)
+{
+  
+}
+
 void drawNodes()
 {
   for (Node n : Node.all)

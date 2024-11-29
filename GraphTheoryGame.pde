@@ -50,6 +50,20 @@ void setup() {
   //shiftUp = new Button(
 
   generateMapWithCurrentSliders();
+
+// avg ~520 ms for 100 000 iterations
+  for (int i = 0; i < 10; i++)
+  {
+    long start = System.currentTimeMillis();
+
+    int iters = 100000;
+    for (int j = 0; j < iters; j++)
+    {
+      Pathfinding.findPath(startNode, endNode);
+    }
+    long end = System.currentTimeMillis();
+    println(iters + " iterations in " + (end - start) + "ms");
+  }
 }
 
 void draw() {

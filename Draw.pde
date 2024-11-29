@@ -142,6 +142,10 @@ static class DrawContext
   int strokeJoin;
   int strokeCap;
   
+  int textAlign;
+  int textAlignY;
+  float textSize;
+  
 
   DrawContext(PGraphics src)
   {
@@ -159,6 +163,10 @@ static class DrawContext
     strokeWeight = src.strokeWeight;
     strokeJoin = src.strokeJoin;
     strokeCap = src.strokeCap;
+    
+    textAlign = src.textAlign;
+    textAlignY = src.textAlignY;
+    textSize = src.textSize;
   }
 
   void apply(PGraphics target)
@@ -177,5 +185,8 @@ static class DrawContext
     target.strokeWeight(strokeWeight);
     target.strokeJoin(strokeJoin);
     target.strokeCap(strokeCap);
+    
+    target.textAlign(textAlign, textAlignY);
+    target.textSize(textSize);
   }
 }

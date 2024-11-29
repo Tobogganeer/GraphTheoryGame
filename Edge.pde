@@ -18,6 +18,11 @@ static class Edge
     this.cost = cost;
     this.nodeA = a;
     this.nodeB = b;
+    calculateMidpoint();
+  }
+  
+  void calculateMidpoint()
+  {
     midPoint = PVector.lerp(nodeA.position, nodeB.position, 0.5f);
     costRect = Rect.center(midPoint.x, midPoint.y, 12, 16);
   }

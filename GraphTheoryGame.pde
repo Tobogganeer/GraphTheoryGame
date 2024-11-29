@@ -14,7 +14,7 @@ void setup() {
 
   Applet.init(this);
 
-  int minCost = 1, maxCost = 5;
+  int minCost = 1, maxCost = 9;
   generateMap(20, 1f, minCost, maxCost);
 }
 

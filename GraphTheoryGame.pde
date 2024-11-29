@@ -52,10 +52,10 @@ void generateMap(int numNodes)
   Node.all.clear();
   Edge.all.clear();
 
-  final float outerPush = 150f;
+  final float outerPush = 170f;
   final float innerPush = 80f;
   final float horizontalPushMult = 1.3f;
-  final float minSpacing = 30f;
+  final float minSpacing = 50f;
 
   // Calculate nodes for the 2 rings
   int outerNodes = numNodes / 2;
@@ -118,29 +118,42 @@ void spaceAllNodes(float minSpacing)
   final int iterations = 20;
   for (int i = 0; i < iterations; i++)
   {
-    for (Node a : Node.all)
+    for (Node a : getShuffledNodeList())
     {
-      for (Node b : Node.all)
+      for (Node b : getShuffledNodeList())
       {
         // Don't check against ourselves
         if (a == b)
           continue;
         // Far away enough, move along
-        if (a.position.dist(b.position) > minSpacing)
+        if (a.position.dist(b.position) > minSpacing - 0.1f)
           continue;
-        
+
         PVector offset = a.position.copy().sub(b.position);
         float currentDist = offset.mag();
         offset.normalize();
-        float neededSeperation = currentDist - minSpacing;
+        float neededSeperation = minSpacing - currentDist;
         offset.mult(neededSeperation / 2f); // Will be applied to both, halve needed "push"
         // Push them apart
         a.position.add(offset);
         b.position.sub(offset);
-        println("pushed " + neededSeperation);
       }
     }
   }
+}
+
+// https://stackoverflow.com/questions/1519736/random-shuffling-of-an-array
+ArrayList<Node> getShuffledNodeList()
+{
+  int index;
+  ArrayList<Node> nodes = new ArrayList<Node>();
+  for (int i = Node.all.size() - 1; i > 0; i--)
+  {
+    index = int(random(i + 1));
+    nodes.add(Node.all.get(index));
+  }
+  
+  return nodes;
 }
 
 

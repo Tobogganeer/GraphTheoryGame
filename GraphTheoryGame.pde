@@ -9,7 +9,7 @@ void setup() {
 
   Applet.init(this);
 
-  generateMap(10);
+  generateMap(20);
 
   /*
   Node nodeA = new Node(100, 100);
@@ -35,17 +35,15 @@ void draw() {
 }
 
 /*
-
  Map generation idea:
  - Generate [2] rings of nodes - push them out random amounts (outside circle pushed farther)
  - Find farthest left node, add start node to left
  - Find farthest right node, add end node to right
  - For each node:
- - Choose random number of edges to connect (2-4, bias towards 2-3)
- - Connect to closest neighbouring nodes
+ *   Choose random number of edges to connect (2-4, bias towards 2-3)
+ *   Connect to closest neighbouring nodes
  - Select random number of edges (1-5) and delete them randomly
- - Ensure a path is still possible after checking each deletion
- 
+ *   Ensure a path is still possible after checking each deletion
  */
 void generateMap(int numNodes)
 {
@@ -56,6 +54,10 @@ void generateMap(int numNodes)
   final float innerPush = 80f;
   final float horizontalPushMult = 1.3f;
   final float minSpacing = 50f;
+
+
+  // Start and end
+  numNodes -= 2;
 
   // Calculate nodes for the 2 rings
   int outerNodes = numNodes / 2;
@@ -115,7 +117,7 @@ void generateStartAndEnd()
 void spaceAllNodes(float minSpacing)
 {
   // Should be more than enough
-  final int iterations = 20;
+  final int iterations = 40;
   for (int i = 0; i < iterations; i++)
   {
     for (Node a : getShuffledNodeList())
@@ -152,7 +154,7 @@ ArrayList<Node> getShuffledNodeList()
     index = int(random(i + 1));
     nodes.add(Node.all.get(index));
   }
-  
+
   return nodes;
 }
 

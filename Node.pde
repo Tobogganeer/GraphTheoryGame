@@ -71,8 +71,10 @@ static class Node
   {
     Draw.start();
     
+    final float diameter = 10;
+    
     Applet.get().fill(#4253E3);
-    Applet.get().ellipse(position.x, position.y, 20, 20);
+    Applet.get().ellipse(position.x, position.y, diameter, diameter);
     
     Draw.end();
   }

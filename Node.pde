@@ -8,7 +8,7 @@ static class Node
   static ArrayList<Node> all = new ArrayList<Node>();
 
   //int id;
-  PVector position;
+  public PVector position;
 
   public Node(PVector position)
   {
@@ -38,5 +38,27 @@ static class Node
     }
 
     return null;
+  }
+
+  ArrayList<Edge> getAllEdges()
+  {
+    ArrayList<Edge> edges = new ArrayList<Edge>();
+    for (Edge e : Edge.all)
+    {
+      if (e.touchesNode(this))
+        edges.add(e);
+    }
+
+    return edges;
+  }
+
+  ArrayList<Node> getAllNeighbours()
+  {
+    ArrayList<Node> neighbours = new ArrayList<Node>();
+
+    for (Edge e : getAllEdges())
+      neighbours.add(e.getOtherNode(this));
+
+    return neighbours;
   }
 }

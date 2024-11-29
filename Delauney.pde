@@ -46,9 +46,46 @@ static class Delauney
       ArrayList<TriangleEdge> polygon = new ArrayList<TriangleEdge>();
       for (Triangle badTri : badTriangles)
       {
-        //for (TriangleEdge badEdge : badTri.getEdges())
+        for (TriangleEdge badEdge : badTri.edges)
+        {
+          boolean sharedByAnyOtherBadTriangle = false;
+          for (Triangle otherBadTri : badTriangles)
+          {
+            // Don't check against ourselves
+            if (otherBadTri == badTri)
+              continue;
+            if (otherBadTri.hasEdge(badEdge))
+            {
+              sharedByAnyOtherBadTriangle = true;
+              break;
+            }
+          }
+
+          if (!sharedByAnyOtherBadTriangle)
+            polygon.add(badEdge);
+        }
       }
+
+      // Remove bad triangles
+      for (Triangle badTri : badTriangles)
+        triangles.remove(badTri);
+
+      for (TriangleEdge polyEdge : polygon)
+        triangles.add(new Triangle(polyEdge.a, polyEdge.b, node));
     }
+
+    // Remove any tris connecting to super triangle nodes
+    for (int i = triangles.size() - 1; i > 0; i--)
+    {
+      Triangle tri = triangles.get(i);
+      if (tri.hasNode(stA) || tri.hasNode(stB) || tri.hasNode(stC))
+        triangles.remove(tri);
+    }
+    
+    // Remove super triangle nodes
+    Node.all.remove(stA);
+    Node.all.remove(stB);
+    Node.all.remove(stC);
 
     return triangles;
   }
@@ -104,6 +141,11 @@ static class Triangle
   boolean hasEdge(TriangleEdge edge)
   {
     return edge.equalTo(edgeA) || edge.equalTo(edgeB) || edge.equalTo(edgeC);
+  }
+
+  boolean hasNode(Node node)
+  {
+    return node == a || node == b || node == c;
   }
 
   boolean isNodeInsideCircumcircle(Node node)

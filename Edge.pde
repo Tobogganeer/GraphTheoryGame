@@ -23,6 +23,11 @@ static class Edge
     all.add(this);
   }
 
+  public void forceAdd()
+  {
+    all.add(this);
+  }
+
   public void destroy()
   {
     all.remove(this);
@@ -41,7 +46,7 @@ static class Edge
   Node getOtherNode(Node notThisOne)
   {
     if (nodeA == notThisOne)
-    return nodeB;
+      return nodeB;
     return nodeA;
   }
 
@@ -55,7 +60,7 @@ static class Edge
     for (Edge e : Edge.all)
     {
       if (e.connectsNodes(a, b))
-      return e;
+        return e;
     }
 
     return null;

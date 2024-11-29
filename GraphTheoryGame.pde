@@ -9,7 +9,7 @@ void setup() {
 
   Applet.init(this);
 
-  generateMap(20);
+  generateMap(20, 1f);
 
   /*
   Node nodeA = new Node(100, 100);
@@ -45,7 +45,7 @@ void draw() {
  - Select random number of edges (1-5) and delete them randomly
  *   Ensure a path is still possible after checking each deletion
  */
-void generateMap(int numNodes)
+void generateMap(int numNodes, float removeFactor)
 {
   Node.all.clear();
   Edge.all.clear();
@@ -55,8 +55,8 @@ void generateMap(int numNodes)
   final float horizontalPushMult = 1.3f;
   final float minSpacing = 50f;
 
-  final float edgeMin = 1;
-  final float edgeMax = 5;
+  final int edgeMinCost = 1;
+  final int edgeMaxCost = 5;
 
 
   // Start and end
@@ -78,16 +78,9 @@ void generateMap(int numNodes)
   // Make sure they are spread out
   spaceAllNodes(minSpacing);
 
-  ArrayList<Triangle> triangles = Delauney.triangulateCurrentNodes();
-  for (Triangle tri : triangles)
-  {
-    for (TriangleEdge triEdge : tri.edges)
-    {
-      // Add all edges from all triangles
-      Edge edge = new Edge(int(random(edgeMin, edgeMax)), triEdge.a, triEdge.b);
-      edge.tryAdd();
-    }
-  }
+  // Generate and then destroy some edges
+  generateEdges(edgeMinCost, edgeMaxCost);
+  destroyEdges(int(numNodes * removeFactor));
 }
 
 
@@ -157,6 +150,42 @@ void spaceAllNodes(float minSpacing)
     }
   }
 }
+
+
+void generateEdges(int minCost, int maxCost)
+{
+  ArrayList<Triangle> triangles = Delauney.triangulateCurrentNodes();
+  for (Triangle tri : triangles)
+  {
+    for (TriangleEdge triEdge : tri.edges)
+    {
+      // Add all edges from all triangles
+      Edge edge = new Edge(int(random(minCost, maxCost)), triEdge.a, triEdge.b);
+      edge.tryAdd();
+    }
+  }
+}
+
+void destroyEdges(int num)
+{
+  int attemptsLeft = 1000;
+  while (num > 0 && attemptsLeft-- > 0)
+  {
+    // Get a random edge
+    Edge edge = Edge.all.get((int(random(Edge.all.size()))));
+
+    // Destroy the edge
+    edge.destroy();
+    // Make sure we meet some criteria. Otherwise, add the edge back and try again
+    boolean validPathStillExists = Pathfinding.findPath(startNode, endNode) != null;
+    boolean nodesHaveMoreThanOneEdge = edge.nodeA.getAllEdges().size() > 1 && edge.nodeB.getAllEdges().size() > 1;
+    if (validPathStillExists && nodesHaveMoreThanOneEdge)
+      num--;
+    else
+      edge.forceAdd();
+  }
+}
+
 
 // https://stackoverflow.com/questions/1519736/random-shuffling-of-an-array
 ArrayList<Node> getShuffledNodeList()

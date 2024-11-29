@@ -34,6 +34,7 @@ static class Slider
     this.wholeNumbers = wholeNumbers;
     
     setValue(defaultValue);
+    currentValue = defaultValue;
 
     handleRect = new Rect(0, 0, handleRadius, handleRadius);
 

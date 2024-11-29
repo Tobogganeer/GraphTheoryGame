@@ -32,10 +32,7 @@ void setup() {
 
   Applet.init(this);
 
-  int minCost = 1, maxCost = 9;
-  generateMap(20, 1f, minCost, maxCost);
-
-  numNodesSlider = new Slider(new Rect(20, 30, 120, 10), "Number of Nodes", 6, 20, true, 6);
+  numNodesSlider = new Slider(new Rect(20, 30, 120, 10), "Number of Nodes", 6, 20, true, 11f);
   removeFactorSlider = new Slider(new Rect(20, 60, 120, 10), "Edge Removal Multiplier", 0f, 3f, false, 1.5f);
   edgeMinCostSlider = new Slider(new Rect(20, 90, 120, 10), "Edge Min Cost", 0, 10, true, 1f);
   edgeMaxCostSlider = new Slider(new Rect(20, 120, 120, 10), "Edge Max Cost", 1, 20, true, 5f);
@@ -44,26 +41,55 @@ void setup() {
 
   generateButton = new Button(20, 200, 120, 30, "Generate");
   new Label(20, 250, 120, 20, "^^ Settings ^^", 16);
-  
+
   new Label(20, 400, 120, 20, "vv Quick Play vv", 16);
   easyButton = new Button(30, 450, 100, 24, "Easy");
   mediumButton = new Button(30, 480, 100, 24, "Medium");
   hardButton = new Button(30, 510, 100, 24, "Hard");
 
   //shiftUp = new Button(
+
+  generateMapWithCurrentSliders();
 }
 
 void draw() {
   background(255);
 
-  drawNodes();
-  drawEdges();
+  drawGame();
+  drawUI();
+}
 
+void drawGame()
+{
+  drawEdges();
+  drawNodes();
+  drawCurrentPath();
+  drawStartAndEnd();
+  drawDesiredPath();
+}
+
+void drawUI()
+{
   Button.displayAll();
   Slider.displayAll();
   Label.displayAll();
 
   validateSliders();
+}
+
+void mouseReleased()
+{
+  if (generateButton.isHovered())
+    generateMapWithCurrentSliders();
+}
+
+void generateMapWithCurrentSliders()
+{
+  generateMap(
+    int(numNodesSlider.currentValue),
+    removeFactorSlider.currentValue,
+    int(edgeMinCostSlider.currentValue),
+    int(edgeMaxCostSlider.currentValue));
 }
 
 /*
@@ -239,6 +265,24 @@ ArrayList<Node> getShuffledNodeList()
 }
 
 
+
+
+
+
+
+
+
+
+
+
+// ==================== DRAW ==========================
+
+
+
+
+
+
+
 void drawNodes()
 {
   for (Node n : Node.all)
@@ -250,4 +294,34 @@ void drawEdges()
   // TODO: Highlighting/colours
   for (Edge e : Edge.all)
     e.draw();
+}
+
+
+void drawCurrentPath()
+{
+}
+
+void drawStartAndEnd()
+{
+  final float diameter = 14;
+
+  Draw.start();
+
+  // Start
+  fill(#3CDEA4);
+  ellipse(startNode.position.x, startNode.position.y, diameter, diameter);
+  textAlign(RIGHT, CENTER);
+  text("Start", startNode.position.x - 10, startNode.position.y);
+
+  // End
+  fill(#E0307C);
+  ellipse(endNode.position.x, endNode.position.y, diameter, diameter);
+  textAlign(LEFT, CENTER);
+  text("END", endNode.position.x + 10, endNode.position.y);
+
+  Draw.end();
+}
+
+void drawDesiredPath()
+{
 }

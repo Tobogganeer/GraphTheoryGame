@@ -33,7 +33,7 @@ void setup() {
   Applet.init(this);
 
   numNodesSlider = new Slider(new Rect(20, 30, 120, 10), "Number of Nodes", 6, 20, true, 11f);
-  removeFactorSlider = new Slider(new Rect(20, 60, 120, 10), "Edge Removal Multiplier", 0f, 3f, false, 1.5f);
+  removeFactorSlider = new Slider(new Rect(20, 60, 120, 10), "Edge Removal Multiplier", 0f, 1.5f, false, 0.5f);
   edgeMinCostSlider = new Slider(new Rect(20, 90, 120, 10), "Edge Min Cost", 0, 10, true, 1f);
   edgeMaxCostSlider = new Slider(new Rect(20, 120, 120, 10), "Edge Max Cost", 1, 20, true, 5f);
   minMovesSlider = new Slider(new Rect(20, 150, 120, 10), "Minimum Moves", 1, 10, true, 4f);

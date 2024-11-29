@@ -13,7 +13,13 @@ static class Edge
     this.cost = cost;
     this.nodeA = a;
     this.nodeB = b;
+  }
 
+  public void tryAdd()
+  {
+    for (Edge e : all)
+      if (e.equalTo(this))
+        return;
     all.add(this);
   }
 
@@ -35,29 +41,34 @@ static class Edge
   Node getOtherNode(Node notThisOne)
   {
     if (nodeA == notThisOne)
-      return nodeB;
+    return nodeB;
     return nodeA;
   }
-  
+
+  boolean equalTo(Edge other)
+  {
+    return other.connectsNodes(nodeA, nodeB);
+  }
+
   static Edge get(Node a, Node b)
   {
     for (Edge e : Edge.all)
     {
       if (e.connectsNodes(a, b))
-        return e;
+      return e;
     }
-    
+
     return null;
   }
-  
+
   void draw()
   {
     Draw.start();
-    
+
     Applet.get().stroke(#4253E3);
     Applet.get().strokeWeight(5);
     Applet.get().line(nodeA.position.x, nodeA.position.y, nodeB.position.x, nodeB.position.y);
-    
+
     Draw.end();
   }
 }

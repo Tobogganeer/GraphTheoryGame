@@ -55,6 +55,9 @@ void generateMap(int numNodes)
   final float horizontalPushMult = 1.3f;
   final float minSpacing = 50f;
 
+  final float edgeMin = 1;
+  final float edgeMax = 5;
+
 
   // Start and end
   numNodes -= 2;
@@ -76,6 +79,15 @@ void generateMap(int numNodes)
   spaceAllNodes(minSpacing);
 
   ArrayList<Triangle> triangles = Delauney.triangulateCurrentNodes();
+  for (Triangle tri : triangles)
+  {
+    for (TriangleEdge triEdge : tri.edges)
+    {
+      // Add all edges from all triangles
+      Edge edge = new Edge(int(random(edgeMin, edgeMax)), triEdge.a, triEdge.b);
+      edge.tryAdd();
+    }
+  }
 }
 
 

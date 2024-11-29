@@ -1,5 +1,9 @@
-class Edge
+import java.util.ArrayList;
+
+static class Edge
 {
+  static ArrayList<Edge> all = new ArrayList<Edge>();
+  
   float cost;
   Node nodeA;
   Node nodeB;
@@ -9,6 +13,13 @@ class Edge
     this.cost = cost;
     this.nodeA = a;
     this.nodeB = b;
+    
+    all.add(this);
+  }
+  
+  public void destroy()
+  {
+    all.remove(this);
   }
 
   boolean touchesNode(Node node)

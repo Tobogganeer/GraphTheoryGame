@@ -7,6 +7,8 @@ final float innerPush = 80f;
 final float horizontalPushMult = 1.3f;
 final float minSpacing = 70f;
 
+Slider testSlider;
+
 void setup() {
   size(800, 600);
   noStroke();
@@ -16,6 +18,8 @@ void setup() {
 
   int minCost = 1, maxCost = 9;
   generateMap(20, 1f, minCost, maxCost);
+  
+  testSlider = new Slider(new Rect(100, 100, 100, 10), "Test", 1, 10, true);
 }
 
 void draw() {
@@ -23,6 +27,9 @@ void draw() {
 
   drawNodes();
   drawEdges();
+  
+  Button.displayAll();
+  Slider.displayAll();
 }
 
 /*

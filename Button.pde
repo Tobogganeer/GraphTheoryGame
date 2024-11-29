@@ -3,10 +3,10 @@ import java.util.ArrayList;
 static class Button
 {
   static ArrayList<Button> all = new ArrayList<Button>();
-  
-  int normal = color(200);
-  int hover = color(180, 180, 200);
-  int clicked = color(215, 215, 200);
+
+  int normal = Colours.create(200);
+  int hover = Colours.create(180, 180, 200);
+  int clicked = Colours.create(215, 215, 200);
   Rect rect;
   String label;
 
@@ -18,7 +18,7 @@ static class Button
     rect = new Rect(x, y, w, h);
     this.label = label;
     //this.applet = applet;
-    
+
     all.add(this);
   }
 
@@ -30,15 +30,15 @@ static class Button
 
     Draw.start();
     // Set colour and display our rect
-    stroke(0);
-    strokeWeight(2);
-    fill(mouseDown ? clicked : isHovered() ? hover : normal);
+    Colours.stroke(0);
+    Colours.strokeWeight(2);
+    Colours.fill(mouseDown ? clicked : isHovered() ? hover : normal);
     rect.draw();
 
     // Display our text
-    fill(0);
-    textAlign(CENTER, CENTER);
-    text(label, rect.centerX(), rect.centerY());
+    Colours.fill(0);
+    Applet.get().textAlign(CENTER, CENTER);
+    Applet.get().text(label, rect.centerX(), rect.centerY());
     Draw.end();
   }
 
@@ -48,11 +48,22 @@ static class Button
     if (!enabled)
       return false;
     // We have to mouse over us
-    return rect.contains(mouseX, mouseY);
+    return rect.contains(Applet.get().mouseX, Applet.get().mouseY);
   }
 
   void setPosition(PVector pos)
   {
     rect.setPosition(pos);
+  }
+
+  static void displayAll()
+  {
+    boolean lmbDown = Applet.get().mousePressed && Applet.get().mouseButton == LEFT;
+
+    for (Button b : all)
+    {
+      b.mouseDown = b.isHovered() && lmbDown;
+      b.display();
+    }
   }
 }

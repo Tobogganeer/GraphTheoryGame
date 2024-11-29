@@ -159,12 +159,19 @@ static class Triangle
 
     PVector midpointA = PVector.lerp(a.position, b.position, 0.5f);
     PVector midpointB = PVector.lerp(c.position, b.position, 0.5f);
-
+    
+    
     // Have points and direction, re-arrange to linear form y = mx + b
     // b = y - mx (we have x, y, and can get slope from bisector dir)
 
     float slopeA = bisectorDirA.y / bisectorDirA.x;
     float slopeB = bisectorDirB.y / bisectorDirB.x;
+    //float slopeA = -(1f / ((b.position.y - a.position.y) / (b.position.x - a.position.x)));
+    //float slopeB = -(1f / ((b.position.y - c.position.y) / (b.position.x - c.position.x)));
+    
+    // y = mx + b
+    // midpoint.y = slope * midpoint.x + b
+    // b = midpoint.y - slope * midpoint.x
 
     // y = midpoint.y, x = midpoint.x, m = slope
     float interceptA = midpointA.y - (slopeA * midpointA.x);

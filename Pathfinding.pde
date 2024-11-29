@@ -60,6 +60,8 @@ static class Pathfinding
         }
       }
     }
+    
+    return null;
   }
 
   static Node getLowestCostNode(ArrayList<Node> nodes, HashMap<Node, Integer> costs)

@@ -8,7 +8,7 @@ static class Edge
   Node nodeA;
   Node nodeB;
 
-  public Edge(float cost, Node a, Node b)
+  public Edge(int cost, Node a, Node b)
   {
     this.cost = cost;
     this.nodeA = a;
@@ -48,5 +48,16 @@ static class Edge
     }
     
     return null;
+  }
+  
+  void draw()
+  {
+    Draw.start();
+    
+    Applet.get().stroke(#4253E3);
+    Applet.get().strokeWeight(5);
+    Applet.get().line(nodeA.position.x, nodeA.position.y, nodeB.position.x, nodeB.position.y);
+    
+    Draw.end();
   }
 }

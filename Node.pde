@@ -17,6 +17,11 @@ static class Node
     //id = nextId++;
     //all.put(id, this);
   }
+  
+  public Node(float x, float y)
+  {
+    this(new PVector(x, y));
+  }
 
   boolean connectedWith(Node other)
   {
@@ -60,5 +65,15 @@ static class Node
       neighbours.add(e.getOtherNode(this));
 
     return neighbours;
+  }
+  
+  void draw()
+  {
+    Draw.start();
+    
+    Applet.get().fill(#4253E3);
+    Applet.get().ellipse(position.x, position.y, 20, 20);
+    
+    Draw.end();
   }
 }

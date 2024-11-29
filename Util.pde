@@ -207,30 +207,11 @@ static class PVectorInt
     return (x() == 0) != (y() == 0);
   }
 
-  // Retursn the direction of this vector (if this is a direction)
-  Direction getDirection()
-  {
-    return Direction.fromOffset(this);
-  }
-
   // Returns true if this vector is on the same X or Y axis as other
   boolean alignedWith(PVectorInt other)
   {
     return x() == other.x() || y() == other.y();
   }
-
-  Direction dir(PVectorInt other)
-  {
-    // Make sure they are in a line
-    if (!alignedWith(other))
-      return null;
-    PVectorInt dir = other.copy().sub(this);
-    // Set the length to one
-    dir.vec.normalize();
-    return dir.getDirection();
-  }
-
-
 
   /*
   Credit:

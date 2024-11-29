@@ -2,6 +2,11 @@
 Node startNode;
 Node endNode;
 
+final float outerPush = 170f;
+final float innerPush = 80f;
+final float horizontalPushMult = 1.3f;
+final float minSpacing = 70f;
+
 void setup() {
   size(800, 600);
   noStroke();
@@ -9,26 +14,12 @@ void setup() {
 
   Applet.init(this);
 
-  generateMap(20, 1f);
-
-  /*
-  Node nodeA = new Node(100, 100);
-   Node nodeB = new Node(200, 100);
-   Node nodeC = new Node(200, 200);
-   Node nodeD = new Node(300, 150);
-   
-   new Edge(2, nodeA, nodeB);
-   new Edge(1, nodeA, nodeC);
-   new Edge(3, nodeB, nodeC);
-   new Edge(2, nodeC, nodeD);
-   new Edge(4, nodeD, nodeB);
-   */
+  int minCost = 1, maxCost = 5;
+  generateMap(20, 1f, minCost, maxCost);
 }
 
 void draw() {
   background(255);
-  //textSize(20);
-  //text("Hi!", 200, 200);
 
   drawNodes();
   drawEdges();
@@ -45,19 +36,14 @@ void draw() {
  - Select random number of edges (1-5) and delete them randomly
  *   Ensure a path is still possible after checking each deletion
  */
-void generateMap(int numNodes, float removeFactor)
+void generateMap(int numNodes, float removeFactor, int edgeMinCost, int edgeMaxCost)
 {
   Node.all.clear();
   Edge.all.clear();
 
-  final float outerPush = 170f;
-  final float innerPush = 80f;
-  final float horizontalPushMult = 1.3f;
-  final float minSpacing = 50f;
-
-  final int edgeMinCost = 1;
-  final int edgeMaxCost = 5;
-
+  // Set values for edges to colour themselves with gradients
+  Edge.currentMinCost = edgeMinCost;
+  Edge.currentMaxCost = edgeMaxCost;
 
   // Start and end
   numNodes -= 2;
@@ -160,7 +146,7 @@ void generateEdges(int minCost, int maxCost)
     for (TriangleEdge triEdge : tri.edges)
     {
       // Add all edges from all triangles
-      Edge edge = new Edge(int(random(minCost, maxCost)), triEdge.a, triEdge.b);
+      Edge edge = new Edge(int(random(minCost, maxCost + 1)), triEdge.a, triEdge.b);
       edge.tryAdd();
     }
   }

@@ -3,16 +3,23 @@ import java.util.ArrayList;
 static class Edge
 {
   static ArrayList<Edge> all = new ArrayList<Edge>();
+  
+  static int currentMinCost, currentMaxCost; // Used for colouring
 
   public int cost;
   Node nodeA;
   Node nodeB;
+  
+  PVector midPoint;
+  Rect costRect;
 
   public Edge(int cost, Node a, Node b)
   {
     this.cost = cost;
     this.nodeA = a;
     this.nodeB = b;
+    midPoint = PVector.lerp(nodeA.position, nodeB.position, 0.5f);
+    costRect = Rect.center(midPoint.x, midPoint.y, 12, 16);
   }
 
   public void tryAdd()
@@ -70,9 +77,21 @@ static class Edge
   {
     Draw.start();
 
-    Applet.get().stroke(#4253E3);
-    Applet.get().strokeWeight(5);
-    Applet.get().line(nodeA.position.x, nodeA.position.y, nodeB.position.x, nodeB.position.y);
+    PApplet app = Applet.get();
+
+    app.stroke(#4253E3);
+    app.strokeWeight(3);
+    app.line(nodeA.position.x, nodeA.position.y, nodeB.position.x, nodeB.position.y);
+    
+    app.fill(255);
+    app.strokeWeight(2);
+    
+    app.stroke(app.lerpColor(#68E860, #F5395B, (cost - currentMinCost) / (float)(currentMaxCost - currentMinCost)));
+    costRect.draw(5);
+    
+    app.textAlign(CENTER, CENTER);
+    app.fill(0);
+    app.text(cost, midPoint.x, midPoint.y);
 
     Draw.end();
   }

@@ -12,6 +12,7 @@ static class Slider
 
   boolean mouseDown;
   boolean enabled = true;
+  boolean dragging;
 
   float handleFac;
   float minValue;
@@ -55,15 +56,30 @@ static class Slider
     // Draw handle
     Colours.fill(mouseDown ? clicked : isHovered() ? hover : normal);
     app.ellipseMode(CENTER);
+
+    // "Dragging" makes sure we stay in control even if we move the mouse too fast
+    dragging = mouseDown;
+
+    if (dragging)
+      handleFac = getHandleFac(app.mouseX);
+
+    currentValue = lerp(minValue, maxValue, handleFac);
+    if (wholeNumbers)
+      currentValue = round(currentValue);
+
     // Set rect center (for mouse detection)
     handleRect.setCenter(new PVector(getHandleX(), rect.centerY()));
     app.ellipse(handleRect.centerX(), handleRect.centerY(), handleRadius, handleRadius);
 
     // Display label in center of bar
     Colours.fill(0);
-    app.textAlign(CENTER, CENTER);
+    app.textAlign(CENTER, BASELINE);
     app.textSize(12);
-    app.text(label, rect.centerX(), rect.centerY());
+    app.text(label, rect.centerX(), rect.y - 5);
+    
+    app.textAlign(LEFT, CENTER);
+    String str = wholeNumbers ? Integer.toString(int(currentValue)) : String.format("%.02f", currentValue);
+    app.text(str, rect.x + rect.w + 10, rect.centerY());
     Draw.end();
   }
 
@@ -74,7 +90,8 @@ static class Slider
 
   float getHandleFac(float xPosition)
   {
-    xPosition = Maths.(xPosition, rect.x, rect.x + rect.w);
+    // Make sure we don't go out of bounds
+    xPosition = Maths.clamp(xPosition, rect.x, rect.x + rect.w);
     // x = rectX + rectW * fac
     // fac = (x - rectX) / rectW
     return (xPosition - rect.x) / rect.w;
@@ -100,7 +117,7 @@ static class Slider
 
     for (Slider s : all)
     {
-      s.mouseDown = s.isHovered() && lmbDown;
+      s.mouseDown = (s.isHovered() || s.dragging) && lmbDown;
       s.display();
     }
   }

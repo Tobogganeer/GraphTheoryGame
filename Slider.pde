@@ -18,6 +18,8 @@ static class Slider
   float maxValue;
   boolean wholeNumbers;
 
+  float currentValue;
+
   Rect handleRect;
 
   final float handleRadius = 16;
@@ -68,6 +70,14 @@ static class Slider
   float getHandleX()
   {
     return rect.x + rect.w * handleFac;
+  }
+
+  float getHandleFac(float xPosition)
+  {
+    xPosition = Maths.(xPosition, rect.x, rect.x + rect.w);
+    // x = rectX + rectW * fac
+    // fac = (x - rectX) / rectW
+    return (xPosition - rect.x) / rect.w;
   }
 
   boolean isHovered()

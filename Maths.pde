@@ -177,6 +177,11 @@ static class Maths
     if (f > 0) return 1;
     return 0;
   }
+  
+  static float clamp(float val, float min, float max)
+  {
+    return val < min ? min : val > max ? max : val;
+  }
 
   static PVector invert(PVector p) // Inverts a vector (I hate PVector semantics, I loooove unity Vector3s so much more now)
   {

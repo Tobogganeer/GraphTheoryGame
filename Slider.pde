@@ -105,6 +105,7 @@ static class Slider
     value = Maths.clamp(value, minValue, maxValue);
     float fac = (value - minValue) / maxValue;
     handleFac = fac;
+    currentValue = value;
   }
 
 

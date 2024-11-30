@@ -33,7 +33,8 @@ final int endColour = #E0307C;
 final int desiredPathColour = #70E893;
 final int currentPathColour = #FFA040;
 
-final int numTweakCandidatesConsidered;
+final int numTweakCandidatesConsidered = 10;
+final int minPathLength = 4;
 
 
 void setup() {
@@ -154,14 +155,19 @@ void generateMap(int numNodes, float removeFactor, int edgeMinCost, int edgeMaxC
   desiredPath = Pathfinding.findPath(startNode, endNode);
 
   // Make sure generation didn't fail for some reason
-  if (desiredPath == null)
+  if (desiredPath == null || desiredPath.nodes.size() < minPathLength)
   {
     generateMap(numNodes, removeFactor, edgeMinCost, edgeMaxCost, requiredMoves);
     return;
   }
 
-  // Change edge costs so our lowest-cost path is cheaper
-  currentPath = transformPath(requiredMoves, edgeMinCost, edgeMaxCost);
+  // Change edge costs to give us a random starting path
+  Path startingPath = transformPath(requiredMoves, edgeMinCost, edgeMaxCost);
+  // If null, we are regenerating the map
+  if (startingPath == null)
+    return;
+  else
+    currentPath = startingPath;
 }
 
 
@@ -279,27 +285,42 @@ Path transformPath(int requiredMoves, int minCost, int maxCost)
   // Store the costs before we tweak anything
   int[] baseCosts = TweakCandidate.getCurrentCosts();
 
-  TweakCandidate[] candidates = new TweakCandidate[numTweakCandidatesConsidered];
+  //TweakCandidate[] candidates = new TweakCandidate[numTweakCandidatesConsidered];
 
   TweakCandidate mostInteresting = null;
   int leastMatchingNodes = 100;
 
-  for (int i = 0; i < candidates.length; i++)
+  for (int i = 0; i < numTweakCandidatesConsidered; i++)
   {
     // Generate a new candidate for the tweaked costs
-    candidates[i] = generateTweakedPath(requiredMoves, minCost, maxCost);
+    TweakCandidate candidate = generateTweakedPath(requiredMoves, minCost, maxCost);
     // Reset the costs for the next candidate
     TweakCandidate.applyCosts(baseCosts);
 
     // See how different this candidate is from the starting path
-    int numMatchingNodes = candidates[i].numMatchingNodes(desiredPath);
+    int numMatchingNodes = candidate.numMatchingNodes(desiredPath);
     if (numMatchingNodes < leastMatchingNodes)
     {
       // Store it as the "most interesting" candidate so far
       leastMatchingNodes = numMatchingNodes;
-      mostInteresting = candidates[i];
+      mostInteresting = candidate;
+
+      // Start and end
+      if (numMatchingNodes == 2)
+        break;
     }
   }
+
+  // If the least matching path only changed 1 node (or none at all)
+  if (desiredPath.nodes.size() - leastMatchingNodes <= 1)
+  {
+    // Make a new map
+    generateMapWithCurrentSliders();
+    return null;
+  }
+
+  TweakCandidate.applyCosts(mostInteresting.costs);
+  return mostInteresting.path;
 }
 
 /*

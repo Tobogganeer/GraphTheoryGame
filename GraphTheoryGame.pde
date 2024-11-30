@@ -70,7 +70,7 @@ void setup() {
   removeFactorSlider = new Slider(new Rect(20, 60, 120, 10), "Edge Removal Multiplier", 0f, 1.5f, false, 0.5f);
   edgeMinCostSlider = new Slider(new Rect(20, 90, 120, 10), "Edge Min Cost", 0, 10, true, 1f);
   edgeMaxCostSlider = new Slider(new Rect(20, 120, 120, 10), "Edge Max Cost", 1, 20, true, 7f);
-  numMovesSlider = new Slider(new Rect(20, 150, 120, 10), "Required Moves", 1, 12, true, 6f);
+  numMovesSlider = new Slider(new Rect(20, 150, 120, 10), "Generation Tweaks", 1, 12, true, 6f);
 
   generateButton = new Button(20, 170, 120, 30, "Generate");
   new Label(20, 220, 120, 20, "^^ Settings ^^", 16);
@@ -680,7 +680,8 @@ void drawCurrentTweaks()
   textSize(28);
   textAlign(RIGHT, CENTER);
 
-  text("Target: " + tweaksForThisGeneration + " tweaks", width - 20, height - 100);
+  // Divide by 3 for devious "balancing"
+  text("Target: " + int(tweaksForThisGeneration / 3f) + " tweaks", width - 20, height - 100);
   text("Currently made " + currentTweaks + " tweaks", width - 20, height - 70);
 
   Draw.end();
@@ -696,7 +697,7 @@ void drawVictoryScreen()
 
     textAlign(CENTER, CENTER);
     textSize(18);
-    text("Used " + currentTweaks + "/" + tweaksForThisGeneration + " tweaks", width / 2, height / 2 + 30);
+    text("Used " + currentTweaks + "/" + int(tweaksForThisGeneration / 3f) + " tweaks", width / 2, height / 2 + 30);
 
     Draw.end();
   } else

@@ -6,9 +6,9 @@ Path desiredPath;
 Path currentPath;
 
 final float outerPush = 170f;
-final float innerPush = 80f;
-final float horizontalPushMult = 1.3f;
-final float minSpacing = 70f;
+final float innerPush = 100f;
+final float horizontalPushMult = 1.4f;
+final float minSpacing = 90f;
 
 Slider numNodesSlider;
 Slider removeFactorSlider;
@@ -30,8 +30,8 @@ Button shiftRight;
 final int defaultEdgeColour = #4253E3;
 final int startColour = #3CDEA4;
 final int endColour = #E0307C;
-final int desiredPathColour = #FFA040;
-final int currentPathColour = #70E893;
+final int desiredPathColour = #70E893;
+final int currentPathColour = #FFA040;
 
 
 void setup() {
@@ -83,9 +83,11 @@ void drawUI()
   Button.displayAll();
   Slider.displayAll();
   Label.displayAll();
+  drawLegend();
 
   validateSliders();
 }
+
 
 void mouseReleased()
 {
@@ -148,6 +150,13 @@ void generateMap(int numNodes, float removeFactor, int edgeMinCost, int edgeMaxC
 
   // Find current lowest-cost path
   desiredPath = Pathfinding.findPath(startNode, endNode);
+
+  // Make sure generation didn't fail for some reason
+  if (desiredPath == null)
+  {
+    generateMap(numNodes, removeFactor, edgeMinCost, edgeMaxCost, requiredMoves);
+    return;
+  }
 
   // Change edge costs so our lowest-cost path is cheaper
   currentPath = transformPath(requiredMoves, edgeMinCost, edgeMaxCost);
@@ -281,13 +290,25 @@ Path transformPath(int requiredMoves, int minCost, int maxCost)
     else if (ogCost == minCost)
       tweakDirection = 1; // Increase cost by if we can't go any lower
 
-    victim.cost += tweakDirection;
-    Path newPath = Pathfinding.findPath(startNode, endNode);
-    // If the path changed...
-    if (!newPath.equalTo(desiredPath))
+    // How many times we can possibly tweak before reaching the max/min
+    int possibleTweaks = tweakDirection == 1 ? maxCost - ogCost : ogCost - minCost;
+    // Make sure we have enough tweaks left
+    possibleTweaks = min(possibleTweaks, requiredMoves - tweaksMade);
+
+    for (int i = 0; i < possibleTweaks; i++)
     {
-      tweaksMade++;
-      currentLowestCostPath = newPath;
+      victim.cost += tweakDirection * i;
+      Path newPath = Pathfinding.findPath(startNode, endNode);
+      // If the path changed...
+      if (newPath != null && !newPath.equalTo(desiredPath))
+      {
+        tweaksMade++;
+        currentLowestCostPath = newPath;
+        break;
+      } else
+      {
+        victim.cost = ogCost; // Reset cost - the loop will increment it even more next time
+      }
     }
   }
   while (tweaksMade < requiredMoves && itersLeft-- > 0);
@@ -373,6 +394,24 @@ void drawStartAndEnd()
   Draw.end();
 }
 
-void drawDesiredPath()
+void drawLegend()
 {
+  Draw.start();
+
+  fill(120);
+  rectMode(CORNER);
+  rect(width / 2 - 20, 0, 200, 60);
+
+  fill(desiredPathColour);
+  rectMode(CENTER);
+  rect(width / 2, 10, 20, 20);
+  textAlign(LEFT, CENTER);
+  text("Target Path", width / 2 + 30, 10);
+
+  fill(currentPathColour);
+  rect(width / 2, 30, 20, 20);
+  textAlign(LEFT, CENTER);
+  text("Current Lowest-Cost Path", width / 2 + 30, 30);
+
+  Draw.end();
 }

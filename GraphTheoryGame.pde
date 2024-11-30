@@ -33,6 +33,8 @@ final int endColour = #E0307C;
 final int desiredPathColour = #70E893;
 final int currentPathColour = #FFA040;
 
+final int numTweakCandidatesConsidered;
+
 
 void setup() {
   size(1000, 600);
@@ -267,6 +269,41 @@ void destroyEdges(int num)
 
 /*
 
+ Theory/planning:
+ - Generate a bunch of tweaked paths
+ - See which one is the most "interesting" and stick with it
+ 
+ */
+Path transformPath(int requiredMoves, int minCost, int maxCost)
+{
+  // Store the costs before we tweak anything
+  int[] baseCosts = TweakCandidate.getCurrentCosts();
+
+  TweakCandidate[] candidates = new TweakCandidate[numTweakCandidatesConsidered];
+
+  TweakCandidate mostInteresting = null;
+  int leastMatchingNodes = 100;
+
+  for (int i = 0; i < candidates.length; i++)
+  {
+    // Generate a new candidate for the tweaked costs
+    candidates[i] = generateTweakedPath(requiredMoves, minCost, maxCost);
+    // Reset the costs for the next candidate
+    TweakCandidate.applyCosts(baseCosts);
+
+    // See how different this candidate is from the starting path
+    int numMatchingNodes = candidates[i].numMatchingNodes(desiredPath);
+    if (numMatchingNodes < leastMatchingNodes)
+    {
+      // Store it as the "most interesting" candidate so far
+      leastMatchingNodes = numMatchingNodes;
+      mostInteresting = candidates[i];
+    }
+  }
+}
+
+/*
+
  Theory/planning time:
  - Choose a random edge. Adjust its cost, making sure to respect min/max costs
  - Check if the lowest-cost path changes. If so, move along.
@@ -274,7 +311,7 @@ void destroyEdges(int num)
  - Repeat until requiredMoves tweaks have been made
  
  */
-Path transformPath(int requiredMoves, int minCost, int maxCost)
+TweakCandidate generateTweakedPath(int requiredMoves, int minCost, int maxCost)
 {
   Path currentLowestCostPath = desiredPath;
   int tweaksMade = 0;
@@ -313,7 +350,7 @@ Path transformPath(int requiredMoves, int minCost, int maxCost)
   }
   while (tweaksMade < requiredMoves && itersLeft-- > 0);
 
-  return currentLowestCostPath;
+  return new TweakCandidate(currentLowestCostPath);
 }
 
 

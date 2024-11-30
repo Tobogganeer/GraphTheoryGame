@@ -42,6 +42,8 @@ Button resetCostsButton;
 
 final int tweakButtonAppearDist = 50;
 
+Label victory;
+
 //Button shiftUp;
 //Button shiftDown;
 //Button shiftLeft;
@@ -85,6 +87,9 @@ void setup() {
   decreaseButton.enabled = false;
 
   resetCostsButton = new Button(width - 120, height - 40, 100, 30, "Reset Costs");
+  
+  victory = new Label(width / 2 - 200, height / 2 - 50, 400, 100, "You Won!", 30);
+  victory.enabled = false;
 
   //shiftUp = new Button(
 
@@ -99,6 +104,8 @@ void draw() {
   drawGame();
   drawUI();
   handleTweaks();
+  
+  drawVictoryScreen();
 }
 
 void drawGame()
@@ -534,13 +541,17 @@ void increaseCost()
     val++;
     currentHoveredEdge.cost++;
     tweakHistory.put(currentHoveredEdge, val);
-  }
-  else
+    // Mark as un-tweaked if back at 0
+    if (val == 0)
+      tweakHistory.remove(currentHoveredEdge);
+  } else
   {
     currentTweaks++;
     currentHoveredEdge.cost++;
     tweakHistory.put(currentHoveredEdge, 1);
   }
+
+  recalculatePath();
 }
 
 void decreaseCost()
@@ -557,13 +568,22 @@ void decreaseCost()
     val--;
     currentHoveredEdge.cost--;
     tweakHistory.put(currentHoveredEdge, val);
-  }
-  else
+    // Mark as un-tweaked if back at 0
+    if (val == 0)
+      tweakHistory.remove(currentHoveredEdge);
+  } else
   {
     currentTweaks++;
     currentHoveredEdge.cost--;
     tweakHistory.put(currentHoveredEdge, -1);
   }
+
+  recalculatePath();
+}
+
+void recalculatePath()
+{
+  currentPath = Pathfinding.findPath(startNode, endNode);
 }
 
 
@@ -651,6 +671,24 @@ void drawCurrentTweaks()
   text("Currently made " + currentTweaks + " tweaks", width - 20, height - 70);
 
   Draw.end();
+}
+
+void drawVictoryScreen()
+{
+  if (currentPath.equalTo(desiredPath))
+  {
+    victory.enabled = true;
+    
+    Draw.start();
+    
+    textAlign(CENTER, CENTER);
+    textSize(18);
+    text("Used " + currentTweaks + "/" + tweaksForThisGeneration + " tweaks", width / 2, height / 2 + 30);
+    
+    Draw.end();
+  }
+  else
+    victory.enabled = false;
 }
 
 

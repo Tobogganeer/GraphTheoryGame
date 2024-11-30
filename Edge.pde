@@ -88,7 +88,7 @@ static class Edge
     app.strokeWeight(3);
     app.line(nodeA.position.x, nodeA.position.y, nodeB.position.x, nodeB.position.y);
     
-    app.fill(tweakHistory.containsKey(this) ? 200 : 255);
+    app.fill(tweakHistory.containsKey(this) ? #FFCBF8 : #FFFFFF);
     app.strokeWeight(2);
     
     app.stroke(app.lerpColor(#68E860, #F5395B, (cost - currentMinCost) / (float)(currentMaxCost - currentMinCost)));

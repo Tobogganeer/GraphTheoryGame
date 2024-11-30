@@ -47,7 +47,7 @@ void setup() {
 
   Applet.init(this);
 
-  numNodesSlider = new Slider(new Rect(20, 30, 120, 10), "Number of Nodes", 6, 20, true, 11f);
+  numNodesSlider = new Slider(new Rect(20, 30, 120, 10), "Number of Nodes", 8, 20, true, 11f);
   removeFactorSlider = new Slider(new Rect(20, 60, 120, 10), "Edge Removal Multiplier", 0f, 1.5f, false, 0.5f);
   edgeMinCostSlider = new Slider(new Rect(20, 90, 120, 10), "Edge Min Cost", 0, 10, true, 1f);
   edgeMaxCostSlider = new Slider(new Rect(20, 120, 120, 10), "Edge Max Cost", 1, 20, true, 7f);
@@ -91,6 +91,8 @@ void drawUI()
   Label.displayAll();
   drawLegend();
 
+  Popup.update();
+
   validateSliders();
 }
 
@@ -132,6 +134,8 @@ void generateMap(int numNodes, float removeFactor, int edgeMinCost, int edgeMaxC
 {
   if (generationAttempts > maxGenerationAttempts)
   {
+    Popup.show("Generation failed after " + generationAttempts + " attempts. Invalid settings?", 5.0f);
+    generationAttempts = 0;
     return;
   }
 
@@ -163,6 +167,13 @@ void generateMap(int numNodes, float removeFactor, int edgeMinCost, int edgeMaxC
 
   // Generate and then destroy some edges
   generateEdges(edgeMinCost, edgeMaxCost);
+
+  // Edges didn't generate (don't know why but it is happening)
+  if (Edge.all.size() == 0)
+  {
+    generateMapWithCurrentSliders();
+    return;
+  }
   destroyEdges(int(numNodes * removeFactor));
 
   // Find current lowest-cost path
@@ -171,7 +182,7 @@ void generateMap(int numNodes, float removeFactor, int edgeMinCost, int edgeMaxC
   // Make sure generation didn't fail for some reason
   if (desiredPath == null || desiredPath.nodes.size() < minPathLength)
   {
-    generateMap(numNodes, removeFactor, edgeMinCost, edgeMaxCost, requiredMoves);
+    generateMapWithCurrentSliders();
     return;
   }
 
@@ -513,13 +524,33 @@ numNodesSlider       6, 20, true, 11f);
 
 void easy()
 {
-  //numNodesSlider.setValue()
+  numNodesSlider.setValue(8);
+  removeFactorSlider.setValue(1.0f);
+  edgeMinCostSlider.setValue(1f);
+  edgeMaxCostSlider.setValue(4f);
+  numMovesSlider.setValue(3f);
+
+  generateMapWithCurrentSliders();
 }
 
 void medium()
 {
+  numNodesSlider.setValue(12);
+  removeFactorSlider.setValue(0.75f);
+  edgeMinCostSlider.setValue(1f);
+  edgeMaxCostSlider.setValue(6f);
+  numMovesSlider.setValue(6f);
+
+  generateMapWithCurrentSliders();
 }
 
 void hard()
 {
+  numNodesSlider.setValue(18);
+  removeFactorSlider.setValue(0.4f);
+  edgeMinCostSlider.setValue(1f);
+  edgeMaxCostSlider.setValue(10f);
+  numMovesSlider.setValue(10f);
+
+  generateMapWithCurrentSliders();
 }

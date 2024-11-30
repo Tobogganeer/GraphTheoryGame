@@ -25,6 +25,19 @@ Button hardButton;
 int generationAttempts = 0;
 final int maxGenerationAttempts = 10;
 
+
+int[] baseCosts;
+int currentTweaks;
+int tweaksForThisGeneration;
+int minCostForThisGeneration;
+int maxCostForThisGeneration;
+
+Button increaseButton;
+Button decreaseButton;
+Edge currentHoveredEdge;
+
+final int tweakButtonAppearDist = 50;
+
 //Button shiftUp;
 //Button shiftDown;
 //Button shiftLeft;
@@ -61,6 +74,12 @@ void setup() {
   mediumButton = new Button(30, 480, 100, 24, "Medium");
   hardButton = new Button(30, 510, 100, 24, "Hard");
 
+  // Path tweaking buttons
+  increaseButton = new Button(0, 0, 14, 16, "^");
+  decreaseButton = new Button(0, 0, 14, 16, "v");
+  increaseButton.enabled = false;
+  decreaseButton.enabled = false;
+
   //shiftUp = new Button(
 
   generateMapWithCurrentSliders();
@@ -73,6 +92,7 @@ void draw() {
 
   drawGame();
   drawUI();
+  handleTweaks();
 }
 
 void drawGame()
@@ -96,6 +116,55 @@ void drawUI()
   validateSliders();
 }
 
+void handleTweaks()
+{
+  ArrayList<Edge> edgesWithinReach = new ArrayList<Edge>();
+  ArrayList<Float> distances = new ArrayList<Float>();
+  PVector mousePos = new PVector(mouseX, mouseY);
+  // tweakButtonAppearDist
+  for (Edge edge : Edge.all)
+  {
+    float dist = edge.midPoint.dist(mousePos);
+    if (dist < tweakButtonAppearDist)
+    {
+      edgesWithinReach.add(edge);
+      distances.add(dist);
+    }
+  }
+  // We can edit an edge
+  if (edgesWithinReach.size() > 0)
+  {
+    Edge closest = edgesWithinReach.get(0);
+    float closestDist = distances.get(0);
+
+    // Get closest edge of the bunch, in case they are close
+    for (int i = 1; i < edgesWithinReach.size(); i++)
+    {
+      if (distances.get(i) < closestDist)
+      {
+        closestDist = distances.get(i);
+        closest = edgesWithinReach.get(i);
+      }
+    }
+
+    currentHoveredEdge = closest;
+
+    // Turn on buttons if we can tweak in a certain direction
+    increaseButton.enabled = currentHoveredEdge.cost < maxCostForThisGeneration;
+    decreaseButton.enabled = currentHoveredEdge.cost > minCostForThisGeneration;
+
+    increaseButton.setPosition(closest.midPoint.copy().add(new PVector(-7, -26)));
+    decreaseButton.setPosition(closest.midPoint.copy().add(new PVector(-7, 10)));
+  }
+  // No edges nearby
+  else
+  {
+    increaseButton.enabled = false;
+    decreaseButton.enabled = false;
+  }
+}
+
+
 
 void mouseReleased()
 {
@@ -107,6 +176,10 @@ void mouseReleased()
     medium();
   if (hardButton.isHovered())
     hard();
+  if (increaseButton.isHovered())
+    increaseCost();
+  if (decreaseButton.isHovered())
+    decreaseCost();
 }
 
 void generateMapWithCurrentSliders()
@@ -194,6 +267,12 @@ void generateMap(int numNodes, float removeFactor, int edgeMinCost, int edgeMaxC
 
   currentPath = startingPath;
   generationAttempts = 0; // Generation successful
+
+  tweaksForThisGeneration = requiredMoves;
+  minCostForThisGeneration = edgeMinCost;
+  maxCostForThisGeneration = edgeMaxCost;
+  currentTweaks = 0;
+  baseCosts = TweakCandidate.getCurrentCosts();
 }
 
 
@@ -425,6 +504,13 @@ ArrayList<Node> getShuffledNodeList()
 }
 
 
+void increaseCost()
+{
+}
+
+void decreaseCost()
+{
+}
 
 
 

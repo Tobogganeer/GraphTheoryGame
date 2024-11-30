@@ -26,6 +26,8 @@ Button hardButton;
 int generationAttempts = 0;
 final int maxGenerationAttempts = 10;
 
+final float tweakMutatorChance = 0.3f;
+
 
 int[] baseCosts;
 int currentTweaks;
@@ -55,7 +57,7 @@ final int endColour = #E0307C;
 final int desiredPathColour = #70E893;
 final int currentPathColour = #FFA040;
 
-final int numTweakCandidatesConsidered = 10;
+final int numTweakCandidatesConsidered = 20;
 final int minPathLength = 4;
 
 
@@ -70,7 +72,7 @@ void setup() {
   removeFactorSlider = new Slider(new Rect(20, 60, 120, 10), "Edge Removal Multiplier", 0f, 1.5f, false, 0.5f);
   edgeMinCostSlider = new Slider(new Rect(20, 90, 120, 10), "Edge Min Cost", 0, 10, true, 1f);
   edgeMaxCostSlider = new Slider(new Rect(20, 120, 120, 10), "Edge Max Cost", 1, 20, true, 7f);
-  numMovesSlider = new Slider(new Rect(20, 150, 120, 10), "Generation Tweaks", 1, 12, true, 6f);
+  numMovesSlider = new Slider(new Rect(20, 150, 120, 10), "Generation Tweaks", 6, 20, true, 8f);
 
   generateButton = new Button(20, 170, 120, 30, "Generate");
   new Label(20, 220, 120, 20, "^^ Settings ^^", 16);
@@ -423,6 +425,7 @@ Path transformPath(int requiredMoves, int minCost, int maxCost)
   {
     // Generate a new candidate for the tweaked costs
     TweakCandidate candidate = generateTweakedPath(requiredMoves, minCost, maxCost);
+    //if (canBeSolvedInOneTweak(candidate)
     // Reset the costs for the next candidate
     TweakCandidate.applyCosts(baseCosts);
 
@@ -434,6 +437,8 @@ Path transformPath(int requiredMoves, int minCost, int maxCost)
       leastMatchingNodes = numMatchingNodes;
       mostInteresting = candidate;
 
+// TODO: Don't just stop here! That's why we are getting paths that can be solved in one
+// Calculate which paths take more thingies to beat
       // Start and end
       if (numMatchingNodes == 2)
         break;
@@ -493,6 +498,15 @@ TweakCandidate generateTweakedPath(int requiredMoves, int minCost, int maxCost)
       if (newPath != null && !pathInList(newPath, previousPaths))
       {
         tweaksMade++;
+
+        // Random chance to tweak a little further in that direction
+        if (random(1f) < tweakMutatorChance && tweaksMade < requiredMoves &&
+          victim.cost + tweakDirection <= maxCost && victim.cost + tweakDirection >= minCost)
+        {
+          victim.cost += tweakDirection;
+          tweaksMade++;
+        }
+
         currentLowestCostPath = newPath;
         previousPaths.add(currentLowestCostPath);
         break;
@@ -514,6 +528,49 @@ boolean pathInList(Path path, ArrayList<Path> isItInHere)
       return true;
   return false;
 }
+
+boolean canBeSolvedInOneTweak(TweakCandidate candidate)
+{
+  // Set up edges
+  TweakCandidate.applyCosts(candidate.costs);
+
+  for (Edge e : Edge.all)
+  {
+    e.cost--; // -1
+    if (Pathfinding.findPath(startNode, endNode).equalTo(desiredPath))
+      return true;
+    e.cost += 2; // +1
+    if (Pathfinding.findPath(startNode, endNode).equalTo(desiredPath))
+      return true;
+    e.cost--; // Reset
+  }
+
+  return false;
+}
+
+// WARNING: VERY FAST EXPONENTIAL GROWTH, KEEP tweaks LOW
+/*
+boolean canBeSolvedInNTweaks(TweakCandidate candidate, int tweaks)
+ {
+ // Set up edges
+ TweakCandidate.applyCosts(candidate.costs);
+ 
+ for (int i = 0; i < Edge.all.size(); i++)
+ {
+ }
+ }
+ 
+ boolean solvedInThisDepth(int depth)
+ {
+ for (int i = 0; i < Edge.all.size(); i++)
+ {
+ int[] costs = TweakCandidate.getCurrentCosts();
+ Edge.all.get(i).cost--; // Don't care about limits currently
+ if (depth > 0 && solvedInThisDepth(depth--))
+ return true;
+ }
+ }
+ */
 
 
 
@@ -732,7 +789,7 @@ void easy()
   removeFactorSlider.setValue(0.4f);
   edgeMinCostSlider.setValue(1f);
   edgeMaxCostSlider.setValue(4f);
-  numMovesSlider.setValue(3f);
+  numMovesSlider.setValue(6f);
 
   generateMapWithCurrentSliders();
 }
@@ -743,7 +800,7 @@ void medium()
   removeFactorSlider.setValue(0.6f);
   edgeMinCostSlider.setValue(1f);
   edgeMaxCostSlider.setValue(6f);
-  numMovesSlider.setValue(6f);
+  numMovesSlider.setValue(12f);
 
   generateMapWithCurrentSliders();
 }
@@ -754,7 +811,7 @@ void hard()
   removeFactorSlider.setValue(0.4f);
   edgeMinCostSlider.setValue(1f);
   edgeMaxCostSlider.setValue(10f);
-  numMovesSlider.setValue(10f);
+  numMovesSlider.setValue(18f);
 
   generateMapWithCurrentSliders();
 }

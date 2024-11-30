@@ -78,13 +78,13 @@ static class Edge
     return null;
   }
 
-  void draw()
+  void draw(int colour)
   {
     Draw.start();
 
     PApplet app = Applet.get();
 
-    app.stroke(#4253E3);
+    app.stroke(colour);
     app.strokeWeight(3);
     app.line(nodeA.position.x, nodeA.position.y, nodeB.position.x, nodeB.position.y);
     

@@ -67,13 +67,13 @@ static class Node
     return neighbours;
   }
   
-  void draw()
+  void draw(int colour)
   {
     Draw.start();
     
     final float diameter = 10;
     
-    Applet.get().fill(#4253E3);
+    Applet.get().fill(colour);
     Applet.get().ellipse(position.x, position.y, diameter, diameter);
     
     Draw.end();

@@ -60,7 +60,7 @@ static class Pathfinding
         }
       }
     }
-    
+
     return null;
   }
 
@@ -104,5 +104,16 @@ static class Path
     }
 
     return true;
+  }
+
+  public void draw(int colour)
+  {
+    nodes.get(0).draw(colour);
+
+    for (int i = 0; i < nodes.size() - 1; i++)
+    {
+      nodes.get(i + 1).draw(colour);
+      nodes.get(i).getEdge(nodes.get(i + 1)).draw(colour);
+    }
   }
 }

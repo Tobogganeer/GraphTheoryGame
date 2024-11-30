@@ -2,6 +2,9 @@
 Node startNode;
 Node endNode;
 
+Path desiredPath;
+Path currentPath;
+
 final float outerPush = 170f;
 final float innerPush = 80f;
 final float horizontalPushMult = 1.3f;
@@ -11,8 +14,7 @@ Slider numNodesSlider;
 Slider removeFactorSlider;
 Slider edgeMinCostSlider;
 Slider edgeMaxCostSlider;
-Slider minMovesSlider;
-Slider maxMovesSlider;
+Slider numMovesSlider;
 
 Button generateButton;
 
@@ -25,6 +27,13 @@ Button shiftDown;
 Button shiftLeft;
 Button shiftRight;
 
+final int defaultEdgeColour = #4253E3;
+final int startColour = #3CDEA4;
+final int endColour = #E0307C;
+final int desiredPathColour = #FFA040;
+final int currentPathColour = #70E893;
+
+
 void setup() {
   size(1000, 600);
   noStroke();
@@ -36,11 +45,10 @@ void setup() {
   removeFactorSlider = new Slider(new Rect(20, 60, 120, 10), "Edge Removal Multiplier", 0f, 1.5f, false, 0.5f);
   edgeMinCostSlider = new Slider(new Rect(20, 90, 120, 10), "Edge Min Cost", 0, 10, true, 1f);
   edgeMaxCostSlider = new Slider(new Rect(20, 120, 120, 10), "Edge Max Cost", 1, 20, true, 5f);
-  minMovesSlider = new Slider(new Rect(20, 150, 120, 10), "Minimum Moves", 1, 10, true, 4f);
-  maxMovesSlider = new Slider(new Rect(20, 180, 120, 10), "Maximum Moves", 2, 20, true, 6f);
+  numMovesSlider = new Slider(new Rect(20, 150, 120, 10), "Required Moves", 1, 12, true, 5f);
 
-  generateButton = new Button(20, 200, 120, 30, "Generate");
-  new Label(20, 250, 120, 20, "^^ Settings ^^", 16);
+  generateButton = new Button(20, 170, 120, 30, "Generate");
+  new Label(20, 220, 120, 20, "^^ Settings ^^", 16);
 
   new Label(20, 400, 120, 20, "vv Quick Play vv", 16);
   easyButton = new Button(30, 450, 100, 24, "Easy");
@@ -51,19 +59,7 @@ void setup() {
 
   generateMapWithCurrentSliders();
 
-// avg ~520 ms for 100 000 iterations
-  for (int i = 0; i < 10; i++)
-  {
-    long start = System.currentTimeMillis();
-
-    int iters = 100000;
-    for (int j = 0; j < iters; j++)
-    {
-      Pathfinding.findPath(startNode, endNode);
-    }
-    long end = System.currentTimeMillis();
-    println(iters + " iterations in " + (end - start) + "ms");
-  }
+  // avg ~520 ms for 100 000 iterations, 11 nodes
 }
 
 void draw() {
@@ -77,9 +73,9 @@ void drawGame()
 {
   drawEdges();
   drawNodes();
-  drawCurrentPath();
+  desiredPath.draw(desiredPathColour);
+  currentPath.draw(currentPathColour);
   drawStartAndEnd();
-  drawDesiredPath();
 }
 
 void drawUI()
@@ -103,7 +99,8 @@ void generateMapWithCurrentSliders()
     int(numNodesSlider.currentValue),
     removeFactorSlider.currentValue,
     int(edgeMinCostSlider.currentValue),
-    int(edgeMaxCostSlider.currentValue));
+    int(edgeMaxCostSlider.currentValue),
+    int(numMovesSlider.currentValue));
 }
 
 /*
@@ -117,7 +114,7 @@ void generateMapWithCurrentSliders()
  - Select random number of edges (1-5) and delete them randomly
  *   Ensure a path is still possible after checking each deletion
  */
-void generateMap(int numNodes, float removeFactor, int edgeMinCost, int edgeMaxCost)
+void generateMap(int numNodes, float removeFactor, int edgeMinCost, int edgeMaxCost, int requiredMoves)
 {
   Node.all.clear();
   Edge.all.clear();
@@ -148,6 +145,12 @@ void generateMap(int numNodes, float removeFactor, int edgeMinCost, int edgeMaxC
   // Generate and then destroy some edges
   generateEdges(edgeMinCost, edgeMaxCost);
   destroyEdges(int(numNodes * removeFactor));
+
+  // Find current lowest-cost path
+  desiredPath = Pathfinding.findPath(startNode, endNode);
+
+  // Change edge costs so our lowest-cost path is cheaper
+  currentPath = transformPath(requiredMoves, edgeMinCost, edgeMaxCost);
 }
 
 
@@ -253,14 +256,52 @@ void destroyEdges(int num)
   }
 }
 
+/*
+
+ Theory/planning time:
+ - Choose a random edge. Adjust its cost, making sure to respect min/max costs
+ - Check if the lowest-cost path changes. If so, move along.
+ - Otherwise, try tweaking the value again in the same direction (if possible)
+ - Repeat until requiredMoves tweaks have been made
+ 
+ */
+Path transformPath(int requiredMoves, int minCost, int maxCost)
+{
+  Path currentLowestCostPath = desiredPath;
+  int tweaksMade = 0;
+  int itersLeft = 10000;
+
+  do
+  {
+    Edge victim = Edge.all.get(int(random(Edge.all.size())));
+    int ogCost = victim.cost;
+    int tweakDirection = random(1f) > 0.5f ? -1 : 1;
+    if (ogCost == maxCost)
+      tweakDirection = -1; // Lower cost if we can't go any higher
+    else if (ogCost == minCost)
+      tweakDirection = 1; // Increase cost by if we can't go any lower
+
+    victim.cost += tweakDirection;
+    Path newPath = Pathfinding.findPath(startNode, endNode);
+    // If the path changed...
+    if (!newPath.equalTo(desiredPath))
+    {
+      tweaksMade++;
+      currentLowestCostPath = newPath;
+    }
+  }
+  while (tweaksMade < requiredMoves && itersLeft-- > 0);
+
+  return currentLowestCostPath;
+}
+
+
 
 void validateSliders()
 {
   // Make sure costs and moves are always valid
   if (edgeMinCostSlider.currentValue > edgeMaxCostSlider.currentValue)
     edgeMaxCostSlider.setValue(edgeMinCostSlider.currentValue);
-  if (minMovesSlider.currentValue > maxMovesSlider.currentValue)
-    maxMovesSlider.setValue(minMovesSlider.currentValue);
 }
 
 
@@ -300,20 +341,16 @@ ArrayList<Node> getShuffledNodeList()
 void drawNodes()
 {
   for (Node n : Node.all)
-    n.draw();
+    n.draw(defaultEdgeColour);
 }
 
 void drawEdges()
 {
   // TODO: Highlighting/colours
   for (Edge e : Edge.all)
-    e.draw();
+    e.draw(defaultEdgeColour);
 }
 
-
-void drawCurrentPath()
-{
-}
 
 void drawStartAndEnd()
 {
@@ -322,13 +359,13 @@ void drawStartAndEnd()
   Draw.start();
 
   // Start
-  fill(#3CDEA4);
+  fill(startColour);
   ellipse(startNode.position.x, startNode.position.y, diameter, diameter);
   textAlign(RIGHT, CENTER);
   text("Start", startNode.position.x - 10, startNode.position.y);
 
   // End
-  fill(#E0307C);
+  fill(endColour);
   ellipse(endNode.position.x, endNode.position.y, diameter, diameter);
   textAlign(LEFT, CENTER);
   text("END", endNode.position.x + 10, endNode.position.y);

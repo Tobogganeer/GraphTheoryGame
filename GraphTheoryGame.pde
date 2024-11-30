@@ -87,7 +87,7 @@ void setup() {
   decreaseButton.enabled = false;
 
   resetCostsButton = new Button(width - 120, height - 40, 100, 30, "Reset Costs");
-  
+
   victory = new Label(width / 2 - 200, height / 2 - 50, 400, 100, "You Won!", 30);
   victory.enabled = false;
 
@@ -104,7 +104,7 @@ void draw() {
   drawGame();
   drawUI();
   handleTweaks();
-  
+
   drawVictoryScreen();
 }
 
@@ -202,6 +202,7 @@ void mouseReleased()
     currentTweaks = 0;
     TweakCandidate.applyCosts(baseCosts);
     tweakHistory.clear();
+    recalculatePath();
   }
 }
 
@@ -466,6 +467,9 @@ TweakCandidate generateTweakedPath(int requiredMoves, int minCost, int maxCost)
   int tweaksMade = 0;
   int itersLeft = 10000;
 
+  ArrayList<Path> previousPaths = new ArrayList<Path>();
+  previousPaths.add(desiredPath);
+
   do
   {
     Edge victim = Edge.all.get(int(random(Edge.all.size())));
@@ -486,10 +490,11 @@ TweakCandidate generateTweakedPath(int requiredMoves, int minCost, int maxCost)
       victim.cost += tweakDirection * i;
       Path newPath = Pathfinding.findPath(startNode, endNode);
       // If the path changed...
-      if (newPath != null && !newPath.equalTo(desiredPath))
+      if (newPath != null && !pathInList(newPath, previousPaths))
       {
         tweaksMade++;
         currentLowestCostPath = newPath;
+        previousPaths.add(currentLowestCostPath);
         break;
       } else
       {
@@ -500,6 +505,14 @@ TweakCandidate generateTweakedPath(int requiredMoves, int minCost, int maxCost)
   while (tweaksMade < requiredMoves && itersLeft-- > 0);
 
   return new TweakCandidate(currentLowestCostPath);
+}
+
+boolean pathInList(Path path, ArrayList<Path> isItInHere)
+{
+  for (Path p : isItInHere)
+    if (p.equalTo(path))
+      return true;
+  return false;
 }
 
 
@@ -678,16 +691,15 @@ void drawVictoryScreen()
   if (currentPath.equalTo(desiredPath))
   {
     victory.enabled = true;
-    
+
     Draw.start();
-    
+
     textAlign(CENTER, CENTER);
     textSize(18);
     text("Used " + currentTweaks + "/" + tweaksForThisGeneration + " tweaks", width / 2, height / 2 + 30);
-    
+
     Draw.end();
-  }
-  else
+  } else
     victory.enabled = false;
 }
 
@@ -716,7 +728,7 @@ numNodesSlider       6, 20, true, 11f);
 void easy()
 {
   numNodesSlider.setValue(8);
-  removeFactorSlider.setValue(1.0f);
+  removeFactorSlider.setValue(0.4f);
   edgeMinCostSlider.setValue(1f);
   edgeMaxCostSlider.setValue(4f);
   numMovesSlider.setValue(3f);
@@ -727,7 +739,7 @@ void easy()
 void medium()
 {
   numNodesSlider.setValue(12);
-  removeFactorSlider.setValue(0.75f);
+  removeFactorSlider.setValue(0.6f);
   edgeMinCostSlider.setValue(1f);
   edgeMaxCostSlider.setValue(6f);
   numMovesSlider.setValue(6f);

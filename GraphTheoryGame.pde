@@ -22,10 +22,13 @@ Button easyButton;
 Button mediumButton;
 Button hardButton;
 
-Button shiftUp;
-Button shiftDown;
-Button shiftLeft;
-Button shiftRight;
+int generationAttempts = 0;
+final int maxGenerationAttempts = 10;
+
+//Button shiftUp;
+//Button shiftDown;
+//Button shiftLeft;
+//Button shiftRight;
 
 final int defaultEdgeColour = #4253E3;
 final int startColour = #3CDEA4;
@@ -47,8 +50,8 @@ void setup() {
   numNodesSlider = new Slider(new Rect(20, 30, 120, 10), "Number of Nodes", 6, 20, true, 11f);
   removeFactorSlider = new Slider(new Rect(20, 60, 120, 10), "Edge Removal Multiplier", 0f, 1.5f, false, 0.5f);
   edgeMinCostSlider = new Slider(new Rect(20, 90, 120, 10), "Edge Min Cost", 0, 10, true, 1f);
-  edgeMaxCostSlider = new Slider(new Rect(20, 120, 120, 10), "Edge Max Cost", 1, 20, true, 5f);
-  numMovesSlider = new Slider(new Rect(20, 150, 120, 10), "Required Moves", 1, 12, true, 5f);
+  edgeMaxCostSlider = new Slider(new Rect(20, 120, 120, 10), "Edge Max Cost", 1, 20, true, 7f);
+  numMovesSlider = new Slider(new Rect(20, 150, 120, 10), "Required Moves", 1, 12, true, 6f);
 
   generateButton = new Button(20, 170, 120, 30, "Generate");
   new Label(20, 220, 120, 20, "^^ Settings ^^", 16);
@@ -96,6 +99,12 @@ void mouseReleased()
 {
   if (generateButton.isHovered())
     generateMapWithCurrentSliders();
+  if (easyButton.isHovered())
+    easy();
+  if (mediumButton.isHovered())
+    medium();
+  if (hardButton.isHovered())
+    hard();
 }
 
 void generateMapWithCurrentSliders()
@@ -121,6 +130,11 @@ void generateMapWithCurrentSliders()
  */
 void generateMap(int numNodes, float removeFactor, int edgeMinCost, int edgeMaxCost, int requiredMoves)
 {
+  if (generationAttempts > maxGenerationAttempts)
+  {
+    return;
+  }
+
   Node.all.clear();
   Edge.all.clear();
 
@@ -166,8 +180,9 @@ void generateMap(int numNodes, float removeFactor, int edgeMinCost, int edgeMaxC
   // If null, we are regenerating the map
   if (startingPath == null)
     return;
-  else
-    currentPath = startingPath;
+
+  currentPath = startingPath;
+  generationAttempts = 0; // Generation successful
 }
 
 
@@ -472,4 +487,39 @@ void drawLegend()
   text("Current Lowest-Cost Path", width / 2 + 30, 30);
 
   Draw.end();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ========================= DIFFICULTIES
+
+/*
+numNodesSlider       6, 20, true, 11f);
+ removeFactorSlider   0f, 1.5f, false, 0.5f);
+ edgeMinCostSlider    0, 10, true, 1f);
+ edgeMaxCostSlider    1, 20, true, 7f);
+ numMovesSlider       1, 12, true, 6f);
+ */
+
+void easy()
+{
+  //numNodesSlider.setValue()
+}
+
+void medium()
+{
+}
+
+void hard()
+{
 }

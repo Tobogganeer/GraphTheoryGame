@@ -1,3 +1,4 @@
+import java.util.HashMap;
 
 Node startNode;
 Node endNode;
@@ -31,10 +32,13 @@ int currentTweaks;
 int tweaksForThisGeneration;
 int minCostForThisGeneration;
 int maxCostForThisGeneration;
+static HashMap<Edge, Integer> tweakHistory = new HashMap<Edge, Integer>();
 
 Button increaseButton;
 Button decreaseButton;
 Edge currentHoveredEdge;
+
+Button resetCostsButton;
 
 final int tweakButtonAppearDist = 50;
 
@@ -80,6 +84,8 @@ void setup() {
   increaseButton.enabled = false;
   decreaseButton.enabled = false;
 
+  resetCostsButton = new Button(width - 120, height - 40, 100, 30, "Reset Costs");
+
   //shiftUp = new Button(
 
   generateMapWithCurrentSliders();
@@ -110,6 +116,7 @@ void drawUI()
   Slider.displayAll();
   Label.displayAll();
   drawLegend();
+  drawCurrentTweaks();
 
   Popup.update();
 
@@ -170,16 +177,25 @@ void mouseReleased()
 {
   if (generateButton.isHovered())
     generateMapWithCurrentSliders();
+
   if (easyButton.isHovered())
     easy();
   if (mediumButton.isHovered())
     medium();
   if (hardButton.isHovered())
     hard();
+
   if (increaseButton.isHovered())
     increaseCost();
   if (decreaseButton.isHovered())
     decreaseCost();
+
+  if (resetCostsButton.isHovered())
+  {
+    currentTweaks = 0;
+    TweakCandidate.applyCosts(baseCosts);
+    tweakHistory.clear();
+  }
 }
 
 void generateMapWithCurrentSliders()
@@ -506,10 +522,48 @@ ArrayList<Node> getShuffledNodeList()
 
 void increaseCost()
 {
+  // Already edited this edge
+  if (tweakHistory.containsKey(currentHoveredEdge))
+  {
+    int val = tweakHistory.get(currentHoveredEdge);
+    // Actually undoing a tweak
+    if (val < 0)
+      currentTweaks--;
+    else
+      currentTweaks++;
+    val++;
+    currentHoveredEdge.cost++;
+    tweakHistory.put(currentHoveredEdge, val);
+  }
+  else
+  {
+    currentTweaks++;
+    currentHoveredEdge.cost++;
+    tweakHistory.put(currentHoveredEdge, 1);
+  }
 }
 
 void decreaseCost()
 {
+  // Already edited this edge
+  if (tweakHistory.containsKey(currentHoveredEdge))
+  {
+    int val = tweakHistory.get(currentHoveredEdge);
+    // Actually undoing a tweak
+    if (val > 0)
+      currentTweaks--;
+    else
+      currentTweaks++;
+    val--;
+    currentHoveredEdge.cost--;
+    tweakHistory.put(currentHoveredEdge, val);
+  }
+  else
+  {
+    currentTweaks++;
+    currentHoveredEdge.cost--;
+    tweakHistory.put(currentHoveredEdge, -1);
+  }
 }
 
 
@@ -582,6 +636,19 @@ void drawLegend()
   rect(width / 2, 30, 20, 20);
   textAlign(LEFT, CENTER);
   text("Current Lowest-Cost Path", width / 2 + 30, 30);
+
+  Draw.end();
+}
+
+void drawCurrentTweaks()
+{
+  Draw.start();
+
+  textSize(28);
+  textAlign(RIGHT, CENTER);
+
+  text("Target: " + tweaksForThisGeneration + " tweaks", width - 20, height - 100);
+  text("Currently made " + currentTweaks + " tweaks", width - 20, height - 70);
 
   Draw.end();
 }
